@@ -3,9 +3,6 @@ from django.http import HttpResponse
 
 from .models import Greeting
 
-def home_page_action(request):
-	return render(request, 'noteable/home.html', {})
-
 # Create your views here.
 def index(request):
     # return HttpResponse('Hello from Python!')
