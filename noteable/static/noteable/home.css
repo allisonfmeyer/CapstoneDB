@@ -1,0 +1,49 @@
+#header-image {
+  width: 100%;
+  height: auto;
+  margin-top: 0px;
+  position: relative;
+  min-height: 200px;
+}
+
+#header-image h1 {
+  color: FireBrick;
+  font-size: 10em;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  position: relative;
+  padding-top: 15%;
+}
+
+#header-image h3 {
+  color: black;
+  font-size: 2.5em;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  position: relative;
+  padding-top: 0%;
+}
+
+#header-image .col {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+@media only screen and (max-width: 500px) {
+    #header-image h2 {
+      font-size: 4em;
+      padding-top: 5%;
+    }
+}
+
+@media only screen and (max-width: 200px) {
+    #header-image h2 {
+      font-size: 2em;
+      padding-top: 1%;
+    }
+}
+
+#wrapper, img{
+    width:100%;
+}
