@@ -3,9 +3,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
-#from noteable.models import 
-
-'''
 class LoginForm(forms.Form):
     username = forms.CharField(max_length = 20)
     password = forms.CharField(max_length = 200, widget = forms.PasswordInput())
@@ -82,16 +79,3 @@ class RegistrationForm(forms.Form):
         # We must return the cleaned data we got from the cleaned_data
         # dictionary
         return username
-
-class MyProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        exclude = (
-            'user',
-            'followers',
-        )
-    def __init__(self, *args, **kwargs):
-        super(MyProfileForm, self).__init__(*args, **kwargs)
-        self.fields['user_bio'].widget.attrs.update({'id': 'id_bio_text'})
-        self.fields['profile_image'].widget.attrs.update({'id': 'id_profile_picture'})
-'''
