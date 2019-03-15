@@ -80,3 +80,9 @@ figure figcaption {
   color: gray;
   text-indent: 20px;
 }
+
+#footer {
+   position:absolute;
+   bottom:0;
+   width:100%;
+}
