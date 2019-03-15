@@ -38,3 +38,45 @@ span.anchor {
   padding-top: 0%;
 }
 
+/* Three image containers (use 25% for four, and 50% for two, etc) */
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 50px;
+}
+
+/* Clear floats after image containers */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+#avatars img {
+  border-radius: 50%;
+}
+
+figure figcaption {
+    text-align: center;
+}
+
+#cap-name {
+  font-size: 30px;
+}
+
+#school {
+  font-size: 18px;
+}
+
+#description {
+  color: gray;
+}
+
+.question {
+  font-size: 18px;
+}
+
+.answer {
+  color: gray;
+  text-indent: 20px;
+}

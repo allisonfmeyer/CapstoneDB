@@ -1,51 +1,221 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-        <meta charset="UTF-8">
-        <title>Noteable</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/static/noteable/home.css">
-    </head>
-    <body>
-    	<nav class="navbar navbar-inverse">
-			<div class="container-fluid">
-				<div class="navbar-header">
-		      		<a class="navbar-brand">
-		        		<img style="max-width:20px; margin-top: -7px;"
-		             	src="/static/noteable/eighth_note.png">
-		      		</a>
-		      		<a class="navbar-brand">Noteable</a>
-		    	</div>
-		    	<ul class="nav navbar-nav navbar-right">
-		      		<li><a href="#ourProduct">Our Product</a></li>
-				    <li><a href="#ourTeam">Our Team</a></li>
-				    <li><a href="#faq">FAQ</a></li>
-				    <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-		    	</ul>
-		  	</div>
-		  	<div class="row">
-			    <div id="header-image">
-			    	<img src="/static/noteable/hand_writing_music2.jpg" />
-			    	<div id="wrapper">
-					    <div class="row">
-				             <div class="col">
-				                <h1 class="text-center">Noteable</h1>
-				            	<h3 class="text-center">Start Practicing Violin Today!</h3>
-				            </div>
-				        </div>
-					</div>​​​​​​​​​​
-			    </div>
-			</div>
-		</nav>
-		<section id="ourProduct">
-			<h3>Our Product</h3>
-		</section>
-		<section id="ourTeam">
-			Our Team
-		</section>
-		<section id="faq">
-			FAQ
-		</section>
-    </body>
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  {% load static %}
+
+  <title>Noteable</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'noteable/css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'noteable/css/full-width-pics.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand">
+        <img style="max-width:20px; margin-top: -7px;" src="{% static 'noteable/eighth_note.png' %}">
+      </a>
+      <a class="navbar-brand" href="/">Noteable</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#ourProduct">Our Product
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#ourTeam">Our Team</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#faq">FAQ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contactUs">Contact Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header - set the background image for the header in the line below -->
+  <header class="py-5 bg-image-full" style="background-image: url({% static 'noteable/hand_writing_music2.jpg' %});">
+    <div id="header-image" style="height: 500px;">
+    <h1 class="text-center">Noteable</h1>
+    <h3 class="text-center">Start Practicing Violin Today!</h3></div>
+  </header>
+
+  <!-- Content section -->
+  <section class="py-5">
+    <span class="anchor" id="ourProduct"></span>
+    <div class="container" id="ourProduct">
+      <h1>Our Product</h1>
+      <p class="lead">Noteable is an instrument practice tool for beginner violin players. Its easy-to-use
+      interface makes it perfect for musicians of all ages. To start, simply
+      click the <a href="{% url 'login' %}">Login</a> button on the upper right-hand of the screen and login or create an account if you are
+      new. You can then upload any piece of sheet music or choose from the many in our violin music library. Set
+      the metronome tempo to that which you would like to play. Then, record yourself playing the music directly 
+      from whatever device you are using (laptop, phone, etc). When you are finished, Noteable will highlight any
+      missed notes in red, showing which sections need more practice! A final percentage will be displayed,
+      indicating how correct you performed the piece. Save sheet music and recordings to your account so you can
+      come back and continue practicing at any time. <br><br>
+      Want to know more about the creation of our product? <br>
+      <ul>
+        <li><a href="http://course.ece.cmu.edu/~ece500/projects/s19-teamdb/">View our website where we describe the 
+            product's production from start to finish</a></li>
+        <li><a href="#faq">Find answers to some of our most commonly asked questions</a></li>
+        <li><a href="#contactUs">Write to us if you have a question that seems to be unanswered!</a></li>
+      </ul>
+      </p>
+    </div>
+  </section>
+
+  <!-- Image Section - set the background image for the header in the line below -->
+  <section class="py-5 bg-dark">
+    <div style="height: 20px;"></div>
+  </section>
+
+  <!-- Content section -->
+  <section class="py-5">
+    <span class="anchor" id="ourTeam"></span>
+    <div class="container" id="ourTeam">
+      <h1>Our Team</h1>
+      <p class="lead"></p>
+      <div class="row" id="avatars">
+        <div class="column">
+          <figure>
+            <img src="{% static 'noteable/ally.jpg' %}" alt="Ally" style="width:100%">
+            <figcaption><a id="cap-name">Ally Meyer</a>
+                    <br><i id="school">Carnegie Mellon University, ECE '19</i>
+                    <br><a id="description">Ally is currently an undergraduate senior, graduating
+                        from CMU with a BS in ECE this May. Her concentrations have been on Software Systems as well
+                        as Signals and Systems. She will start working as a Software Engineer at 
+                        Capital One next Fall. Her main responsibility on this project was creating
+                        the front-end. This website was developed as a Django app and deployed 
+                        through Heroku. Other technologies being integrated include AWS, VexFlow, 
+                        and Boostrap. </a>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="column">
+          <figure>
+            <img src="{% static 'noteable/sasi.jpg' %}" alt="Sasi" style="width:100%">
+            <figcaption><a id="cap-name">Sasikala Mani</a>
+                    <br><i>Carnegie Mellon University, ECE '19</i>
+                    <br><a id="description">Sasikala is currently an undergraduate senior yada yada yada yada
+                        yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada 
+                        yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada 
+                      yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada</a>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="column">
+          <figure>
+            <img src="{% static 'noteable/tianbo.jpg' %}" alt="Tianbo" style="width:100%">
+            <figcaption><a id="cap-name">Tianbo Chen</a>
+                    <br><i>Carnegie Mellon University, ECE '19</i>
+                    <br><a id="description">Tianbo is currently an undergraduate senior yada yada yada yada
+                        yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada 
+                        yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada 
+                      yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada yada</a>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+  </div>
+  </section>
+
+  <!-- Image Section - set the background image for the header in the line below -->
+  <section class="py-5 bg-dark">
+    <div style="height: 20px;"></div>
+  </section>
+
+  <!-- Content section -->
+  <section class="py-5">
+    <span class="anchor" id="faq"></span>
+    <div class="container" id="faq">
+      <h1>Frequently Asked Questions</h1>
+      <p class="lead"></p>
+      <div class="question">1. Is this tool free?</div>
+      <div class="answer"><i>Yes! All that is required to gain full access to this practice
+                                 tool is registration for a free account. <a href="{% url 'login' %}">
+                                 Click to register here.</a></i></div>
+      <div class="question">2. What do I need to register?</div>
+      <div class="answer"><i>An email address is all that is necessary to register. This is to protect
+                              your account on the chance that you forget your password.</i></div>
+      <div class="question">3. Question?</div>
+      <div class="answer"><i>Answer.</i></div>
+      <div class="question">4. Question?</div>
+      <div class="answer"><i>Answer.</i></div>
+      <div class="question">5. Question?</div>
+      <div class="answer"><i>Answer.</i></div>
+      <div class="question">6. Question?</div>
+      <div class="answer"><i>Answer.</i></div>
+      <div class="question">7. Question?</div>
+      <div class="answer"><i>Answer.</i></div>
+      <div class="question">8. Question?</div>
+      <div class="answer"><i>Answer.</i></div>
+    </div>
+  </section>
+
+  <!-- Image Section - set the background image for the header in the line below -->
+  <section class="py-5 bg-dark">
+    <div style="height: 20px;"></div>
+  </section>
+
+  <!-- Content section -->
+  <section class="py-5">
+    <span class="anchor" id="contactUs"></span>
+    <div class="container" id="ourTeam">
+      <h1>Want to Contact Us?</h1>
+      <p class="lead"></p>Ask us a question; we don't bite!
+      <form method="post" action="{% url 'login' %}">
+        <table>
+            {% for field in form.visible_fields %}
+                <tr>
+                    <td>{{field.label_tag}}</td>
+                    <td>{{field}}</td>
+                    <td class="error">
+                        {% for error in field.errors %} {{error}} {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% csrf_token %}
+        <button id="id_send_email_button" type="submit">Send Message</button>
+    </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; Noteable 2019</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="{% static 'noteable/js/jquery.min.js' %}"></script>
+  <script src="{% static 'noteable/js/bootstrap.bundle.min.js' %}"></script>
+
+</body>
+
 </html>

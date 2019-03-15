@@ -8,7 +8,9 @@ from django.contrib.auth import authenticate, login, logout
 from noteable.forms import LoginForm, RegistrationForm
 
 def home_page_action(request):
-	return render(request, 'noteable/home2.html', {})
+    
+
+	return render(request, 'noteable/home.html', {})
 
 def login_action(request):
     context = {}

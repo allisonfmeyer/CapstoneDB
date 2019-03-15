@@ -79,3 +79,10 @@ class RegistrationForm(forms.Form):
         # We must return the cleaned data we got from the cleaned_data
         # dictionary
         return username
+
+class EmailForm(forms.Form):
+    first_name = forms.CharField(max_length=20)
+    last_name  = forms.CharField(max_length=20)
+    email      = forms.CharField(max_length=50,
+                                 widget = forms.EmailInput())
+    comments = forms.CharField(max_length=500)
