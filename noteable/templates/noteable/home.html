@@ -105,12 +105,11 @@
             <figcaption><a id="cap-name">Ally Meyer</a>
                     <br><i id="school">Carnegie Mellon University, ECE '19</i>
                     <br><a id="description">Ally is currently an undergraduate senior, graduating
-                        from CMU with a BS in ECE this May. Her concentrations have been on Software Systems as well
-                        as Signals and Systems. She will start working as a Software Engineer at 
-                        Capital One next Fall. Her main responsibility on this project was creating
-                        the front-end. This website was developed as a Django app and deployed 
-                        through Heroku. Other technologies being integrated include AWS, VexFlow, 
-                        and Boostrap. </a>
+                        this May with a BS in Electrical & Computer Engineering. Her
+                        concentrations have been in Software Systems as well
+                        as Signals and Systems. Her main responsibility on this project was creating the front-end website!
+                        She will start working as a Software Engineer at Capital One next fall. When she is not coding,
+                        she is training for her half-marathon or traveling with friends and family! </a>
             </figcaption>
           </figure>
         </div>
@@ -153,25 +152,45 @@
     <div class="container" id="faq">
       <h1>Frequently Asked Questions</h1>
       <p class="lead"></p>
-      <div class="question">1. Is this tool free?</div>
-      <div class="answer"><i>Yes! All that is required to gain full access to this practice
-                                 tool is registration for a free account. <a href="{% url 'login' %}">
-                                 Click to register here.</a></i></div>
-      <div class="question">2. What do I need to register?</div>
-      <div class="answer"><i>An email address is all that is necessary to register. This is to protect
-                              your account on the chance that you forget your password.</i></div>
-      <div class="question">3. Question?</div>
-      <div class="answer"><i>Answer.</i></div>
-      <div class="question">4. Question?</div>
-      <div class="answer"><i>Answer.</i></div>
-      <div class="question">5. Question?</div>
-      <div class="answer"><i>Answer.</i></div>
-      <div class="question">6. Question?</div>
-      <div class="answer"><i>Answer.</i></div>
-      <div class="question">7. Question?</div>
-      <div class="answer"><i>Answer.</i></div>
-      <div class="question">8. Question?</div>
-      <div class="answer"><i>Answer.</i></div>
+      <div class="question">1. 1. Is the practice tool free?</div>
+      <div class="answer"><i>Yes! Access to the practice tool as well as our library of 
+                             beginner violin music is free and accessible by simply <a href="{% url 'login' %}">
+                             registering for an account</a>.</i></div>
+      <div class="question">2. How do I register for an account?</div>
+      <div class="answer"><i><a href="{% url 'login' %}">Login here</a> if you have already created an account,
+                             otherwise select ‘Register’ from the Login page. Registration is quick and easy, 
+                             requiring only an email.</i></div>
+      <div class="question">3. Why do I need to register for an account?</div>
+      <div class="answer"><i>An account is required to access the practice tool so that you can come back later 
+                             and keep practicing the same music. Uploaded sheet music will be saved to your account 
+                             so that you don’t have to re-upload the music every time! You can also track your progress
+                             by viewing performance percentages over time.</i></div>
+      <div class="question">4. Can I use the tool if I am not a beginner?</div>
+      <div class="answer"><i>Yes, anyone can use our practice tool. However, due to the limited amount of time available
+                             to create the product, the tool can only recognize notes that are one of the following: 
+                             whole note, half note, quarter note, or eighth note. Because of this, beginners are most
+                             likely to not encounter notes of greater complexity.</i></div>
+      <div class="question">5. Can this tool be used with other instruments?</div>
+      <div class="answer"><i>This tool is designed specifically for the violin, considering the most common range of
+                             notes for a beginner player as well as tailoring our pitch and rhythm formulas to that 
+                             of a violin player. Different audio inputs will still create a conversion, but results 
+                             will become less accurate as one moves further from a violin sound (i.e. a cello will 
+                             be more accurate than a trumpet). </i></div>
+      <div class="question">6. How accurate are my results?</div>
+      <div class="answer"><i>Music transcription is an ongoing field of research, so we do not claim our tool to be 100%
+                             accurate. The current accuracy for related works in the field is 90-95%, so our tool will be
+                             as close to this as possible. Also, our sheet music conversion from pdf to xml has an accuracy
+                             of at least 98%; manual conversion is available to correct mistakes. More details on the 
+                             definition of accuracy can be found in our <a href="http://course.ece.cmu.edu/~ece500/projects/s19-teamdb/wp-content/uploads/sites/61/2019/03/Design-Report-1.pdf">Design Report</a>.</i></div>
+      <div class="question">7. How is my input audio transcribed?</div>
+      <div class="answer"><i>Audio transcription is converted using onset pitch detection. Rhythm detection is 
+                             calculated by combining the length between notes with the input user tempo. All of this data
+                             is sent through AWS to create the visual you see output in your browser!</i></div>
+      <div class="question">8. Can I recreate this tool?</div>
+      <div class="answer"><i>Yes! All steps taken to create this website and back-end can be found on our 
+                             <a href="http://course.ece.cmu.edu/~ece500/projects/s19-teamdb/">WordPress Website</a>. Some expenses
+                             may be required to follow the exact same steps that we did, but workarounds are available! We’d love
+                             to hear feedback if you try to follow our path!</i></div>
     </div>
   </section>
 
