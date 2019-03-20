@@ -12,20 +12,6 @@
 
   {% load static %}
   <script src="{% static 'noteable/js/abcjs_basic_5.6.7-min.js' %}" type="text/javascript"></script>
-  <script type="text/javascript">
-    var abc = "T: Twinkle Twinkle Little Star\n" +
-      "M: 4/4\n" +
-      "L: 1/4\n" +
-      "R: reel\n" +
-      "K: Dmaj\n" +
-      "D D A A|B B A2|G G F F|E E D2|\n" +
-      "A A G G|F F E2|A A G G|F F E2|\n" +
-      "D D A A|B B A2|G G F F|E E D2|\n";
-
-    function load() {
-      ABCJS.renderAbc("notation", abc);
-    }
-  </script>
 
   <!-- Bootstrap core CSS -->
   <link href="{% static 'noteable/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -36,7 +22,7 @@
 
 </head>
 
-<body onload="load()">
+<body>
 
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -80,8 +66,9 @@
         <div class="column" id="left">
           <h3>Library:</h3>
           <div id="music_library">
-            <i class="material-icons">folder</i> Sample Music
-            <br><a href="#" onclick="ABCJS.renderAbc('notation', twinkle); return false;">Twinkle Twinkle Little Star</a>
+            <!-- <i class="material-icons">folder</i> Sample Music<br> -->
+            <a href="{% url 'logged_home' %}" onclick="ABCJS.renderAbc('notation', twinkle); loadMusic(twinkle); return false;">Twinkle Twinkle Little Star</a>
+            <br><a href="{% url 'logged_home' %}" onclick="ABCJS.renderAbc('notation', lightlyrow); loadMusic(lightlyrow); return false;">Lightly Row</a>
           </div>
         </div>
         <div class="column" id="right">
@@ -95,10 +82,10 @@
             <col width="300">
             <tr>
               <td>
-                <button onclick="location.href='{% url "logged_home" %}'" type="button">Save Music</button>
+                <button onclick="saveMusic()" type="button">Save Music</button>
               </td>
               <td>
-                <button onclick="location.href='{% url "play" %}'" type="button">Start Recording</button>
+                <button onclick="location.href=playMusic()" type="button">Start Recording</button>
               </td>
             </tr>
           </table>
@@ -114,12 +101,11 @@
     </div>
   </section>
   
-
   <!-- Bootstrap core JavaScript -->
   <script src="{% static 'noteable/js/jquery.min.js' %}"></script>
   <script src="{% static 'noteable/js/bootstrap.bundle.min.js' %}"></script>
   <script src="https://unpkg.com/vexflow/releases/vexflow-debug.js"> </script>
-
+  <script src="{% static 'noteable/js/samplemusic.js' %}" type="text/javascript"></script>
 </body>
 
 </html>
