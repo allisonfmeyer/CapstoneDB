@@ -1,0 +1,64 @@
+/*!
+ * Start Bootstrap - Full Width Pics (https://startbootstrap.com/template-overviews/full-width-pics)
+ * Copyright 2013-2019 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-full-width-pics/blob/master/LICENSE)
+ */
+body {
+  padding-top: 56px;
+}
+
+.bg-image-full {
+  background: no-repeat center center scroll;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+  height: 100%;
+  width: 100%;
+}
+
+#left {
+  float: left;
+  width: 33.3%;
+  padding: 15px;
+}
+
+#right {
+  float: left;
+  width: 66.6%;
+  padding: 15px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+#music_library {
+	width: 300px;
+	padding: 15px;
+	border: 3px solid gray;
+	margin: 0;
+}
+
+#music_preview {
+	color: black;
+	width: 800px;
+	padding: 15px;
+	border: 3px solid gray;
+	margin: 0;
+}
+
+#logged_buttons {
+	float: center;
+	width: 50%;
+	padding: 30px;
+}
+
+#footer {
+   position:absolute;
+   bottom:0;
+   width:100%;
+}

@@ -8,8 +8,6 @@ from django.contrib.auth import authenticate, login, logout
 from noteable.forms import LoginForm, RegistrationForm
 
 def home_page_action(request):
-    
-
 	return render(request, 'noteable/home.html', {})
 
 def login_action(request):
@@ -70,3 +68,16 @@ def register_action(request):
 
     login(request, new_user)
     return redirect(reverse('home'))
+
+def logged_home_action(request):
+    return render(request, 'noteable/logged_home.html', {})
+
+def play_action(request):
+    return render(request, 'noteable/play.html', {})
+
+def results_action(request):
+    return render(request, 'noteable/results.html', {})
+
+def account_action(request):
+    return render(request, 'noteable/account.html', {})
+

@@ -1,49 +1,88 @@
-#header-image {
+/*!
+ * Start Bootstrap - Full Width Pics (https://startbootstrap.com/template-overviews/full-width-pics)
+ * Copyright 2013-2019 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-full-width-pics/blob/master/LICENSE)
+ */
+body {
+  padding-top: 56px;
+}
+
+.bg-image-full {
+  background: no-repeat center center scroll;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+  height: 100%;
   width: 100%;
-  height: auto;
-  margin-top: 0px;
-  position: relative;
-  min-height: 200px;
+}
+
+span.anchor {
+    margin-top: -54px; /* height of nav, in this case 54px */
+    display: block;
+    height: 54px; /* height of nav, in this case 54px */
+    visibility: hidden;
+    position: relative;
 }
 
 #header-image h1 {
   color: FireBrick;
   font-size: 10em;
-  font-family: "Trebuchet MS", Helvetica, sans-serif;
   position: relative;
-  padding-top: 15%;
+  padding-top: 8%;
 }
 
 #header-image h3 {
-  color: black;
-  font-size: 2.5em;
-  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size: 2em;
   position: relative;
   padding-top: 0%;
 }
 
-#header-image .col {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  width: 100%;
+/* Three image containers (use 25% for four, and 50% for two, etc) */
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 50px;
 }
 
-@media only screen and (max-width: 500px) {
-    #header-image h2 {
-      font-size: 4em;
-      padding-top: 5%;
-    }
+/* Clear floats after image containers */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
 }
 
-@media only screen and (max-width: 200px) {
-    #header-image h2 {
-      font-size: 2em;
-      padding-top: 1%;
-    }
+#avatars img {
+  border-radius: 50%;
 }
 
-#wrapper, img{
-    width:100%;
+figure figcaption {
+    text-align: center;
+}
+
+#cap-name {
+  font-size: 30px;
+}
+
+#school {
+  font-size: 18px;
+}
+
+#description {
+  color: gray;
+}
+
+.question {
+  font-size: 18px;
+}
+
+.answer {
+  color: gray;
+  text-indent: 20px;
+}
+
+#footer {
+   position:absolute;
+   bottom:0;
+   width:100%;
 }
