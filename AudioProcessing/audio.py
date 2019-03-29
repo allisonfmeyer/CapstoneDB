@@ -4,7 +4,7 @@ from scipy import signal
 import sys
 import matplotlib.pyplot as plt
 
-def findOnsets(x, Fs, plot=False):
+def findPianoOnsets(x, Fs, plot=False):
     window_size = round(int((5200/44100)*Fs))
 
     window = signal.gaussian(window_size, std = window_size/(6))
@@ -15,7 +15,6 @@ def findOnsets(x, Fs, plot=False):
     if (channels>1):
         x = np.average(x, axis=1)
     '''
-    plt.plot(np.square(x))
     filtered = signal.fftconvolve(np.abs(x), edge_detector)
     filtered = filtered/np.max(filtered)
     # Shift signal by half the window size to line up with onset
@@ -27,14 +26,82 @@ def findOnsets(x, Fs, plot=False):
         for peak in peaks:
             plt.axvline(peak,color='r')
         plt.show()
+    '''
+    normalized = np.abs(x)/np.max(np.abs(x))
+    threshold = 0.04
+    if (plot):
+        plt.plot(normalized, ',')
+        plt.axhline(threshold, color='r')
+        plt.show()
+
+    ma_window = 100
+    ma = signal.fftconvolve(normalized, np.ones(ma_window)/ma_window)
+
+    plt.plot(normalized)
+    plt.plot(ma)
+    plt.axhline(threshold, color='r')
+    plt.show()
+    indicies = np.where(ma<threshold)[0]
+    rests = []
+    start = indicies[0]
+    for i in range(0,len(indicies)-1):
+        #print(indicies[i+1]- indicies[i])
+        if indicies[i+1]-indicies[i]>300:
+            end = indicies[i]
+            rests.append((start,end))
+            start = indicies[i+1]
+    plt.plot(normalized)
+    for rest in rests:
+        (L,R) = rest
+        print(R-L)
+        plt.axvline(L,color='r')
+        plt.axvline(R,color='g')
+    plt.show()
+    '''
     return peaks
+
+def findViolinOnsets(x, Fs, plot=False):
+    window_size = round(int((5200/44100)*Fs))
+
+    window = signal.gaussian(window_size, std = window_size/(6))
+    edge_detector = np.ediff1d(window)
+
+    '''
+    (_, channels) = x.shape
+    if (channels>1):
+        x = np.average(x, axis=1)
+    '''
+    new_window_size = int(window_size/8)
+    plt.plot(np.square(x)/np.max(np.square(x)))
+    filtered = signal.fftconvolve(np.square(x)/np.max(np.square(x)), np.ones(new_window_size)/new_window_size) #edge_detector)
+    plt.plot(filtered)
+    plt.show()
+    filtered = filtered/np.max(filtered)
+    # Shift signal by half the window size to line up with onset
+    filtered = filtered[window_size//2:]
+    peaks, _ = signal.find_peaks(filtered, height=0.1, distance=round(window_size*1.5))
+
+    if (plot):
+        plt.plot(x)
+        for peak in peaks:
+            plt.axvline(peak,color='r')
+        plt.show()
+
+    # Add an onset to the end to capture last note
+    peaks.append(len(x)-1)
+    return peaks
+
+# Returns the duration of notes in eighth notes.
+# Tempo is bpm for a quarter note
+def findDuration(peaks, tempo, Fs):
+    times = np.ediff1d(peaks)/Fs
+    quarter = 60/tempo
+    eighth = quarter/2
+    return np.rint(times/eighth)
 
 def findFrequencies(onsets, x, Fs, plot=False):
     x = x/np.max(x)
     max_frequencies = 3
-
-    # Add an onset to the end to capture last note
-    onsets = np.append(onsets, len(x)-1)
 
     frequencies = [None for i in range(len(onsets)-1)]
     amplitudes = [None for i in range(len(onsets)-1)]
@@ -109,22 +176,34 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
             print("-----")
     return final_frequencies
 
-def main(audiofile):
+# returns a list of tuples in the form (MIDI Note, duration)
+# where duration is the length in eight notes (ie 2 would mean a quarter note)
+def main(audiofile, tempo, debug=False):
     x, Fs = sf.read(audiofile)
-    onsets = findOnsets(x,Fs)
+    onsets = findPianoOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
         midi = np.rint(12*np.log2(freqs[i]/440)+49)
         freqs[i] = freqs[i][np.abs(midi-np.mean(midi))<=18]
     freqs_new = removeHarmonics(freqs, amps, spectrum, Fs)
-    print("Possible Notes")
-    for i in range(0, len(freqs)):
-        MIDInotes = np.rint(12*np.log2(freqs[i]/440)+49)
-        print(MIDInotes)
+    if (debug):
+        print("Possible Notes")
+        for i in range(0, len(freqs)):
+            MIDInotes = np.rint(12*np.log2(freqs[i]/440)+49)
+            print(MIDInotes)
     MIDInotes = np.rint(12*np.log2(freqs_new/440)+49)
-    print("Selected Notes")
-    print(MIDInotes)
+    if (debug):
+        print("Selected Notes")
+        print(MIDInotes)
+    durations = findDuration(onsets, tempo, Fs)
+    if (debug):
+        print("Durations")
+        print(durations)
+    return list(zip(MIDInotes.tolist(), durations.tolist()))
 
 if __name__=="__main__":
     audiofile = sys.argv[1]
-    main(audiofile)
+    tempo = 100
+    x = main(audiofile, tempo)
+    print(x)
+
