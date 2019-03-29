@@ -170,36 +170,36 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
         final_frequencies[i] = freqs[i][total_error.argmin()]
         if (debug):
             print("-----")
-            MIDI = np.rint(12*np.log2(freqs[i]/440)+49)
-            print(MIDI)
+            key_no = np.rint(12*np.log2(freqs[i]/440)+49)
+            print(key_no)
             print(total_error)
             print("-----")
     return final_frequencies
 
-# returns a list of tuples in the form (MIDI Note, duration)
+# returns a list of tuples in the form (Piano Key Number, duration)
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
 def main(audiofile, tempo, debug=False):
     x, Fs = sf.read(audiofile)
     onsets = findPianoOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
-        midi = np.rint(12*np.log2(freqs[i]/440)+49)
-        freqs[i] = freqs[i][np.abs(midi-np.mean(midi))<=18]
+        key = np.rint(12*np.log2(freqs[i]/440)+49)
+        freqs[i] = freqs[i][np.abs(key-np.mean(key))<=18]
     freqs_new = removeHarmonics(freqs, amps, spectrum, Fs)
     if (debug):
         print("Possible Notes")
         for i in range(0, len(freqs)):
-            MIDInotes = np.rint(12*np.log2(freqs[i]/440)+49)
-            print(MIDInotes)
-    MIDInotes = np.rint(12*np.log2(freqs_new/440)+49)
+            keynotes = np.rint(12*np.log2(freqs[i]/440)+49)
+            print(keynotes)
+    keynotes = np.rint(12*np.log2(freqs_new/440)+49)
     if (debug):
         print("Selected Notes")
-        print(MIDInotes)
+        print(keynotes)
     durations = findDuration(onsets, tempo, Fs)
     if (debug):
         print("Durations")
         print(durations)
-    return list(zip(MIDInotes.tolist(), durations.tolist()))
+    return list(zip(keynotes.tolist(), durations.tolist()))
 
 if __name__=="__main__":
     audiofile = sys.argv[1]
