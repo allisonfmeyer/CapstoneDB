@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Noteable</title>
+
+  {% load static %}
+  <script src="{% static 'noteable/js/abcjs_basic_5.6.7-min.js' %}" type="text/javascript"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'noteable/css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'noteable/css/logged_home.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand">
+        <img style="max-width:20px; margin-top: -7px;" src="{% static 'noteable/eighth_note.png' %}">
+      </a>
+      <a class="navbar-brand" href="{% url 'logged_home_init' %}">Noteable</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'account' %}">My Account
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header - set the background image for the header in the line below -->
+  <header>
+    <br><h1 class="text-center">User's Home Page</h1>
+  </header>
+
+  <!-- Content section -->
+  
+  <section class="py-5">
+    <span class="anchor" id=""></span>
+    <div class="container" id="ourProduct">
+      <input type="button" id="loadXmlFile" value="Upload Sheet Music" onclick="document.getElementById('xmlFile').click();" />
+      <input type="file" style="display:none;" id="xmlFile" name="file"/>
+      <br><br>
+      <div class="row">
+        <div class="column" id="left">
+          <h3>Library:</h3>
+          <div id="music_library">
+            <!-- <i class="material-icons">folder</i> Sample Music<br> -->
+            <a href="{% url 'logged_home' chosen_song='twinkle' %}">Twinkle Twinkle Little Star</a>
+            <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
+            <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
+          </div>
+        </div>
+        <div class="column" id="right">
+          <h3>Preview:</h3>
+          <div id="music_preview">
+            <div id="notation">
+            </div>
+          </div><br>
+          <table>
+            <col width="300">
+            <col width="300">
+            <tr>
+              <td>
+                <button onclick="saveMusic()" type="button">Save Music</button>
+              </td>
+              <td>
+                <button onclick="location.href=badPlayMusic()" type="button">Start Recording</button>                
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <span class="anchor" id="ourProduct"></span>
+    <div class="container" id="ourProduct">
+
+    </div>
+  </section>
+  
+  <!-- Bootstrap core JavaScript -->
+  <script src="{% static 'noteable/js/jquery.min.js' %}"></script>
+  <script src="{% static 'noteable/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="https://unpkg.com/vexflow/releases/vexflow-debug.js"> </script>
+  <script src="{% static 'noteable/js/samplemusic.js' %}" type="text/javascript"></script>
+</body>
+
+</html>

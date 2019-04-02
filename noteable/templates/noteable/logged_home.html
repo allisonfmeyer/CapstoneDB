@@ -20,9 +20,17 @@
   <link href="{% static 'noteable/css/logged_home.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+  <script type="text/javascript"> 
+     var t_t = "{{song.title}}";
+     var ts_t = "{{song.time_sig}}";
+     var l_t = "{{song.length}}";
+     var k_t = "{{song.key}}";
+     var s_t = "{{song.song}}";
+  </script>
+
 </head>
 
-<body>
+<body onload="ABCJS.renderAbc('notation', makeABCString(t_t, ts_t, l_t, k_t, s_t));">
 
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
@@ -30,7 +38,7 @@
       <a class="navbar-brand">
         <img style="max-width:20px; margin-top: -7px;" src="{% static 'noteable/eighth_note.png' %}">
       </a>
-      <a class="navbar-brand" href="{% url 'logged_home' %}">Noteable</a>
+      <a class="navbar-brand" href="{% url 'logged_home_init' %}">Noteable</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -57,7 +65,7 @@
   <!-- Content section -->
   
   <section class="py-5">
-    <span class="anchor" id="ourProduct"></span>
+    <span class="anchor" id=""></span>
     <div class="container" id="ourProduct">
       <input type="button" id="loadXmlFile" value="Upload Sheet Music" onclick="document.getElementById('xmlFile').click();" />
       <input type="file" style="display:none;" id="xmlFile" name="file"/>
@@ -67,9 +75,9 @@
           <h3>Library:</h3>
           <div id="music_library">
             <!-- <i class="material-icons">folder</i> Sample Music<br> -->
-            <a href="{% url 'logged_home' %}" onclick="ABCJS.renderAbc('notation', twinkle); loadMusic(twinkle); return false;">Twinkle Twinkle Little Star</a>
-            <br><a href="{% url 'logged_home' %}" onclick="ABCJS.renderAbc('notation', lightlyrow); loadMusic(lightlyrow); return false;">Lightly Row</a>
-            <br><a href="{% url 'logged_home' %}" onclick="ABCJS.renderAbc('notation', songOfTheWind); loadMusic(songOfTheWind); return false;">Song of the Wind</a>
+            <a href="{% url 'logged_home' chosen_song='twinkle' %}">Twinkle Twinkle Little Star</a>
+            <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
+            <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
           </div>
         </div>
         <div class="column" id="right">
@@ -86,7 +94,7 @@
                 <button onclick="saveMusic()" type="button">Save Music</button>
               </td>
               <td>
-                <button onclick="location.href=playMusic()" type="button">Start Recording</button>
+                <button onclick="location.href='{% url 'play' %}'" type="button">Start Recording!</button>
               </td>
             </tr>
           </table>
