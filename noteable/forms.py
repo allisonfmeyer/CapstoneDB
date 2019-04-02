@@ -2,6 +2,7 @@ from django import forms
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from noteable.models import Record
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length = 20)
@@ -86,3 +87,8 @@ class EmailForm(forms.Form):
     email      = forms.CharField(max_length=50,
                                  widget = forms.EmailInput())
     comments = forms.CharField(max_length=500)
+
+class RecordForm(forms.ModelForm):
+	class Meta:
+		model = Record
+		fields = ('title', 'recording', 'tempo', )
