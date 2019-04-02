@@ -4,6 +4,9 @@ from scipy import signal
 import sys
 import matplotlib.pyplot as plt
 
+pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 51: "B"}
+
+
 def findPianoOnsets(x, Fs, plot=False):
     window_size = round(int((5200/44100)*Fs))
 
@@ -176,9 +179,40 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
             print("-----")
     return final_frequencies
 
+def convertToString(L, timeSignature):
+    result = ""
+    count = 0
+    measureCount = 0
+    timeSignature = timeSignature.split("/")
+    beats = int(timeSignature[0])
+    measure = int(timeSignature[1])
+    for (freq, duration) in L:
+        num = duration//2
+        count += num
+        note = pianoNoteMap[int(freq)]
+        if(count == beats):
+            measureCount += 1
+            if(num != 1):
+                result = result + note + str(int(num)) + "|"
+            else:
+                result = result + note + "|"
+            count = 0
+        else:
+            if(num != 1):
+                result = result + note + str(int(num)) + " "
+            else:
+                result = result + note + " "
+        if(measureCount == measure):
+            result += "n "
+            measureCount = 0
+    result = result[:-2]
+    result += "]n"
+    return result
+
+
 # returns a list of tuples in the form (Piano Key Number, duration)
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
-def main(audiofile, tempo, debug=False):
+def main(audiofile, tempo, timeSignature, debug=False):
     x, Fs = sf.read(audiofile)
     onsets = findPianoOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
@@ -199,11 +233,13 @@ def main(audiofile, tempo, debug=False):
     if (debug):
         print("Durations")
         print(durations)
-    return list(zip(keynotes.tolist(), durations.tolist()))
+    noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
+    return convertToString(noteDurList, timeSignature)
 
 if __name__=="__main__":
     audiofile = sys.argv[1]
+    timeSignature = sys.argv[2]
     tempo = 100
-    x = main(audiofile, tempo)
+    x = main(audiofile, tempo, timeSignature)
     print(x)
 
