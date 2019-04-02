@@ -4,7 +4,8 @@ from scipy import signal
 import sys
 import matplotlib.pyplot as plt
 
-pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 51: "B"}
+pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 50: "_B", 51: "B",
+                59: "G", 58: "F", 56:"E"}
 
 
 def findPianoOnsets(x, Fs, plot=False):
@@ -234,6 +235,7 @@ def main(audiofile, tempo, timeSignature, debug=False):
         print("Durations")
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
+    print(noteDurList)
     return convertToString(noteDurList, timeSignature)
 
 if __name__=="__main__":
