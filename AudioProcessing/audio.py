@@ -14,12 +14,14 @@ def findPianoOnsets(x, Fs, plot=False):
     window = signal.gaussian(window_size, std = window_size/(6))
     edge_detector = np.ediff1d(window)
 
+    # remember to check for multi channel audio files
     '''
     (_, channels) = x.shape
     if (channels>1):
         x = np.average(x, axis=1)
     '''
     filtered = signal.fftconvolve(np.abs(x), edge_detector)
+
     filtered = filtered/np.max(filtered)
     # Shift signal by half the window size to line up with onset
     filtered = filtered[window_size//2:]
@@ -30,7 +32,8 @@ def findPianoOnsets(x, Fs, plot=False):
         for peak in peaks:
             plt.axvline(peak,color='r')
         plt.show()
-    '''
+
+    # Rest Detection
     normalized = np.abs(x)/np.max(np.abs(x))
     threshold = 0.04
     if (plot):
@@ -41,28 +44,50 @@ def findPianoOnsets(x, Fs, plot=False):
     ma_window = 100
     ma = signal.fftconvolve(normalized, np.ones(ma_window)/ma_window)
 
-    plt.plot(normalized)
-    plt.plot(ma)
-    plt.axhline(threshold, color='r')
-    plt.show()
-    indicies = np.where(ma<threshold)[0]
+    fc = 100 # Cut-off frequency of the filter
+    w = fc / (Fs / 2) # Normalize the frequency
+    b, a = signal.butter(5, w, 'low')
+    output = 2*signal.filtfilt(b, a, normalized)
+
+    if (plot):
+        plt.plot(normalized, color='b')
+        plt.plot(output, color='k')
+        plt.axhline(threshold, color='r')
+    indicies = np.where(output<threshold)[0]
     rests = []
     start = indicies[0]
     for i in range(0,len(indicies)-1):
         #print(indicies[i+1]- indicies[i])
         if indicies[i+1]-indicies[i]>300:
             end = indicies[i]
-            rests.append((start,end))
+            rests.append((int(start),int(end)))
             start = indicies[i+1]
-    plt.plot(normalized)
-    for rest in rests:
-        (L,R) = rest
-        print(R-L)
-        plt.axvline(L,color='r')
-        plt.axvline(R,color='g')
+    rests.append((int(start), int(indicies[-1])))
+
+    new_rests = []
+    first =  rests[0][0]
+    for i in range(0,len(rests)-1):
+        (L,R) = rests[i]
+        (LL,RR) = rests[i+1]
+        if LL-R>=2000:
+            new_rests.append((first, R))
+            first = LL
+    new_rests.append((first,RR))
+
+    if (plot):
+        for rest in new_rests:
+            (L,R) = rest
+            plt.axvline(L,color='r')
+            plt.axvline(R,color='g')
+        plt.show()
+    peaks = list(zip(peaks,[False]*len(peaks)))
+    rests = [(L,True) for (L,R) in new_rests]
+    onsets = sorted(peaks+rests, key=lambda x: x[0])
+    plt.plot(x)
+    for onset in onsets:
+        plt.axvline(onset[0], color='r')
     plt.show()
-    '''
-    return peaks
+    return onsets
 
 def findViolinOnsets(x, Fs, plot=False):
     window_size = round(int((5200/44100)*Fs))
@@ -100,10 +125,10 @@ def findViolinOnsets(x, Fs, plot=False):
 def findDuration(peaks, tempo, Fs):
     times = np.ediff1d(peaks)/Fs
     quarter = 60/tempo
-    eighth = quarter/2
-    return np.rint(times/eighth)
+    eigth = quarter/2
+    return np.rint(times/eigth)
 
-def findFrequencies(onsets, x, Fs, plot=False):
+def findFrequencies(onsets,x, Fs, plot=False):
     x = x/np.max(x)
     max_frequencies = 3
 
@@ -111,8 +136,14 @@ def findFrequencies(onsets, x, Fs, plot=False):
     amplitudes = [None for i in range(len(onsets)-1)]
 
     for i in range(0, len(onsets)-1):
-        start = int(onsets[i])
-        end = int(onsets[i+1])
+        (start, isRest) = onsets[i]
+        (end, _) = onsets[i+1]
+        if (isRest):
+            frequencies[i] = [None]
+            amplitudes[i] = [None]
+            continue
+        start = int(start)
+        end = int(end)
 
         fft = np.fft.fft(x[start:end], 8*(end-start))
         spectrum = np.abs(fft[:int(np.ceil(len(fft)/2))])
@@ -142,6 +173,8 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
 
     final_frequencies = np.zeros(len(freqs))
     for i in range(0,len(freqs)):
+        if freqs[i][0] == None:
+            continue
         k = len(freqs[i])
         f_max = np.max(freqs[i])
         total_error = np.zeros(k)
@@ -218,6 +251,7 @@ def main(audiofile, tempo, timeSignature, debug=False):
     onsets = findPianoOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
+        if freqs[i][0]==None: continue
         key = np.rint(12*np.log2(freqs[i]/440)+49)
         freqs[i] = freqs[i][np.abs(key-np.mean(key))<=18]
     freqs_new = removeHarmonics(freqs, amps, spectrum, Fs)
@@ -230,7 +264,7 @@ def main(audiofile, tempo, timeSignature, debug=False):
     if (debug):
         print("Selected Notes")
         print(keynotes)
-    durations = findDuration(onsets, tempo, Fs)
+    durations = findDuration(list(zip(*onsets))[0], tempo, Fs)
     if (debug):
         print("Durations")
         print(durations)
@@ -241,7 +275,7 @@ def main(audiofile, tempo, timeSignature, debug=False):
 if __name__=="__main__":
     audiofile = sys.argv[1]
     timeSignature = sys.argv[2]
-    tempo = 100
+    tempo = 80
     x = main(audiofile, tempo, timeSignature)
     print(x)
 
