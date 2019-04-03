@@ -3,12 +3,12 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
     
 class Record(models.Model):
-    title = models.CharField(max_length=50, blank=True)
+    title = models.CharField(max_length=50)
     recording = models.FileField(upload_to='recordings/')
-    tempo = models.IntegerField(default=50,
+    tempo = models.IntegerField(default=100,
         validators=[
-            MaxValueValidator(100),
-            MinValueValidator(1)
+            MaxValueValidator(120),
+            MinValueValidator(20)
         ])
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

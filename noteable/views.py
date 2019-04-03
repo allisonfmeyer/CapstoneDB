@@ -6,9 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.files.storage import FileSystemStorage
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from noteable.forms import LoginForm, RegistrationForm, RecordForm
 from noteable.models import Record, ABCSong
+from noteable.audio import main
 
 
 def home_page_action(request):
@@ -156,16 +158,64 @@ def play_action(request):
 
 ''' 
   This function recreates a song string, creating chords out of any discrepancies
-  between song strings.
+  between song strings. It also creates an array of classes corresponding to
+  discrepencies, to be passed to the css to style the notes in a red color.
 '''
 def compareSongs(song1, song2):
+    curr_line = 0
+    curr_meas = 0
+    curr_note = -1
+    note_values = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    # ABCJs notation: _ for flat, ^ for sharp, = for natural
+    accidentals = ['_', '^', '=']
     result_song = ""
+    wrong_classes = []
+    song2_index = 0
     for index in range(len(song1)):
-        if song1[index] == song2[index]:
-            result_song += song1[index]
+        # Set line, measure, and note for currently evaluated note
+        if song1[index].upper() in note_values:
+            curr_note += 1
+        elif song1[index] == "|":
+            curr_meas += 1
+            curr_note = -1
+        elif song1[index] == "n":
+            curr_line += 1
+            curr_meas = 0
+        # Don't crash if song2 is missing notes
+        if song2_index <= len(song2)-1:
+            # Build up the new song, creating chords for missed notes to display both
+            if song1[index] == song2[song2_index]:
+                result_song += song1[index]
+                song2_index += 1
+            else:
+                if song1[index].upper() in note_values:
+                    # Mismatched notes without accidentals
+                    if song2[song2_index].upper() in note_values:
+                        result_song += "[" + song1[index] + song2[song2_index] + "]"
+                        curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                        wrong_classes.append(curr_class)
+                        song2_index += 1
+                    # Accidental in note on recorded song
+                    elif song2[song2_index] in accidentals:
+                        result_song += "[" + song1[index] + song2[song2_index] + song2[song2_index+1] + "]"
+                        curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                        wrong_classes.append(curr_class)
+                        song2_index += 2
+                    # Song 2 ran out of notes but still needs to reach end of string
+                    else:
+                        result_song += song1[index]
+                        curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                        wrong_classes.append(curr_class)
+                        song2_index += 1
+                else:
+                    result_song += song1[index]
+        # Mark all notes incorrect if song2 runs out early
         else:
-            result_song += "[" + song1[index] + song2[index] + "]"
-    return result_song
+            result_song += song1[index]
+            if song1[index].upper() in note_values:
+                curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                wrong_classes.append(curr_class)
+    return (result_song, wrong_classes)
 
 '''
   This function returns the color to be used to style the percent based
@@ -175,28 +225,30 @@ def percentage_color(percentage):
     if percentage >= 90:
         return "green"
     elif percentage >= 70:
-        return "#ffec21"
+        return "#FFD700"
     else:
         return "red"
 
 ''' 
   This function calculates the correctness percentage
-  by analyzing the number of chords compared to the
-  total number of notes in a song.
+  by analyzing the number of wrong_classes previously
+  calculated in comparison to the total number of notes in a song.
 '''
-def percentage(song):
-    # Strips all whitespace, barlines, numbers, and newline chars
+def percentage(song, wrong_classes):
+    # Strips all whitespace, barlines, numbers, accids, and newline chars
     song = song.replace(" ", "")
     song = song.replace("|", "")
     song = song.replace("n", "")
+    song = song.replace("_", "")
+    song = song.replace("^", "")
+    song = song.replace("=", "")
+    # Strips digits
     song = ''.join([i for i in song if not i.isdigit()])
-    # Count number of chords
-    num_chords = song.count("[")
     # Strip chord and end of song indicator
     song = song.replace("[", "")
     song = song.replace("]", "")
     total_notes = len(song) - num_chords
-    return round(100*(1-num_chords/total_notes))
+    return round(100*(1-len(wrong_classes)/total_notes))
 
 '''
   This function is called to load the results page. Coordinates with back end
@@ -207,18 +259,17 @@ def percentage(song):
 def results_action(request):
     sheet_song = getSongObject(request.session.get('song', None))
     record = Record.objects.latest('uploaded_at')
-
-    # Replace audio_song with song string returned from back-end function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    audio_song = "F D A A|d B A2|B G F F|G E D2|n c A G G|A F E2|c A G G|A F E2|n F D A A|d B A2|B G F F|G E D2|]n"
-
+    audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
+    
     # Update song to include any discrepencies between recording and sheet music as chords
-    result_song = compareSongs(sheet_song.song, audio_song)
+    (result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
     sheet_song.song = result_song
 
-    perc = percentage(result_song)
+    perc = percentage(result_song, wrong_classes)
     perc_color = percentage_color(perc)
     return render(request, 'noteable/results.html', 
-        { 'record': record, 'result_song': sheet_song, 'percentage': perc, 'perc_color': perc_color })
+        { 'record': record, 'result_song': sheet_song, 'percentage': perc, 'perc_color': perc_color, 
+        'classes': wrong_classes })
 
 def account_action(request):
     return render(request, 'noteable/account.html', {})

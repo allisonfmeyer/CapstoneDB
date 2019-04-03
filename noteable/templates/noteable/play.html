@@ -17,6 +17,7 @@
   <link href="{% static 'noteable/css/bootstrap.min.css' %}" rel="stylesheet">
 
   <!-- Custom styles for this template -->
+  <link href="{% static 'noteable/css/logged_home.css' %}" rel="stylesheet">
   <link href="{% static 'noteable/css/full-width-pics.css' %}" rel="stylesheet">
 
   <script type="text/javascript"> 
@@ -74,7 +75,7 @@
       
       <br>Latest Upload: <a href="{{ record.recording.url }}">{{ record.title }}</a>
       
-      <small>(Tempo: {{ record.tempo }})</small> <a class="btn btn-outline-secondary btn-sm" onclick="location.href=getResults()">Results</a>
+      <small>(Tempo: {{ record.tempo }})</small> <a class="btn btn-outline-secondary btn-sm" onclick="location.href='{% url 'results' %}'">Results</a>
 
       <div class="container" id="notation" align="center">
       </div>
@@ -86,7 +87,6 @@
     <div class="container">
       <p class="m-0 text-center text-white">Copyright &copy; Noteable 2019</p>
     </div>
-    <!-- /.container -->
   </footer>
 
   <!-- Bootstrap core JavaScript -->

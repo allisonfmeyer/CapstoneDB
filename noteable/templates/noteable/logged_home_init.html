@@ -66,7 +66,6 @@
         <div class="column" id="left">
           <h3>Library:</h3>
           <div id="music_library">
-            <!-- <i class="material-icons">folder</i> Sample Music<br> -->
             <a href="{% url 'logged_home' chosen_song='twinkle' %}">Twinkle Twinkle Little Star</a>
             <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
             <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
@@ -83,7 +82,7 @@
             <col width="300">
             <tr>
               <td>
-                <button onclick="saveMusic()" type="button">Save Music</button>
+                <button onclick="badSaveMusic()" type="button">Save Music</button>
               </td>
               <td>
                 <button onclick="location.href=badPlayMusic()" type="button">Start Recording</button>                
@@ -102,6 +101,13 @@
     </div>
   </section>
   
+  <!-- Footer -->
+  <footer class="py-5 bg-dark" id="footer">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; Noteable 2019</p>
+    </div>
+  </footer>
+
   <!-- Bootstrap core JavaScript -->
   <script src="{% static 'noteable/js/jquery.min.js' %}"></script>
   <script src="{% static 'noteable/js/bootstrap.bundle.min.js' %}"></script>
