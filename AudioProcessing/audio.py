@@ -2,6 +2,7 @@ import soundfile as sf
 import numpy as np
 from scipy import signal
 import sys
+import math
 import matplotlib.pyplot as plt
 
 pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 50: "_B", 51: "B",
@@ -14,12 +15,7 @@ def findPianoOnsets(x, Fs, plot=False):
     window = signal.gaussian(window_size, std = window_size/(6))
     edge_detector = np.ediff1d(window)
 
-    # remember to check for multi channel audio files
-    '''
-    (_, channels) = x.shape
-    if (channels>1):
-        x = np.average(x, axis=1)
-    '''
+
     filtered = signal.fftconvolve(np.abs(x), edge_detector)
 
     filtered = filtered/np.max(filtered)
@@ -57,7 +53,6 @@ def findPianoOnsets(x, Fs, plot=False):
     rests = []
     start = indicies[0]
     for i in range(0,len(indicies)-1):
-        #print(indicies[i+1]- indicies[i])
         if indicies[i+1]-indicies[i]>300:
             end = indicies[i]
             rests.append((int(start),int(end)))
@@ -90,34 +85,36 @@ def findPianoOnsets(x, Fs, plot=False):
     return onsets
 
 def findViolinOnsets(x, Fs, plot=False):
-    window_size = round(int((5200/44100)*Fs))
 
-    window = signal.gaussian(window_size, std = window_size/(6))
-    edge_detector = np.ediff1d(window)
+    window_size = 500
+    f, t, Zxx = signal.stft(x, fs=Fs, nperseg = window_size)
+    (r,c) = Zxx.shape
+    E = [0 for i in range(0,c)]
+    for i in range(0,c):
+        E[i] = np.sum(np.arange(r)*np.abs(Zxx[:, i])/r)
+    med = signal.medfilt(E, 55)
+    med = med/np.max(med)
+    threshold = 0.1
+    peaks, _ = signal.find_peaks(med, height=threshold, distance=100)
 
-    '''
-    (_, channels) = x.shape
-    if (channels>1):
-        x = np.average(x, axis=1)
-    '''
-    new_window_size = int(window_size/8)
-    plt.plot(np.square(x)/np.max(np.square(x)))
-    filtered = signal.fftconvolve(np.square(x)/np.max(np.square(x)), np.ones(new_window_size)/new_window_size) #edge_detector)
-    plt.plot(filtered)
-    plt.show()
-    filtered = filtered/np.max(filtered)
-    # Shift signal by half the window size to line up with onset
-    filtered = filtered[window_size//2:]
-    peaks, _ = signal.find_peaks(filtered, height=0.1, distance=round(window_size*1.5))
-
+    minima = []
+    for i in range(0,len(peaks)):
+        if i==0:
+            z = med[:peaks[i]]
+            indicies = np.where(z<threshold)
+            minima.append(indicies[0][-1])
+        else:
+            minima.append(np.argmin(med[peaks[i-1]:peaks[i]])+peaks[i-1])
+    peaks = [minima[i]*window_size/2 for i in range(0,len(minima))]
     if (plot):
         plt.plot(x)
         for peak in peaks:
             plt.axvline(peak,color='r')
         plt.show()
-
     # Add an onset to the end to capture last note
     peaks.append(len(x)-1)
+    peaks = np.array(peaks)
+    peaks = list(zip(peaks,[False]*len(peaks)))
     return peaks
 
 # Returns the duration of notes in eighth notes.
@@ -248,7 +245,13 @@ def convertToString(L, timeSignature):
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
 def main(audiofile, tempo, timeSignature, debug=False):
     x, Fs = sf.read(audiofile)
-    onsets = findPianoOnsets(x,Fs)
+
+    # remember to check for multi channel audio files
+    if (x.ndim>1):
+        x = np.average(x, axis=1)
+
+    #onsets = findPianoOnsets(x,Fs)
+    onsets = findViolinOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
         if freqs[i][0]==None: continue
@@ -270,12 +273,14 @@ def main(audiofile, tempo, timeSignature, debug=False):
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
     print(noteDurList)
-    return convertToString(noteDurList, timeSignature)
+    return noteDurList
+    #return convertToString(noteDurList, timeSignature)
 
 if __name__=="__main__":
     audiofile = sys.argv[1]
     timeSignature = sys.argv[2]
-    tempo = 80
+    tempo = int(sys.argv[3])
     x = main(audiofile, tempo, timeSignature)
-    print(x)
+    for note in x:
+        print(note)
 
