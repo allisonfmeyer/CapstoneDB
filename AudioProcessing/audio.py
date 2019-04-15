@@ -9,26 +9,7 @@ pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 50: "_B", 51: "B",
                 59: "G", 58: "F", 56:"E"}
 
 
-def findPianoOnsets(x, Fs, plot=False):
-    window_size = round(int((5200/44100)*Fs))
-
-    window = signal.gaussian(window_size, std = window_size/(6))
-    edge_detector = np.ediff1d(window)
-
-
-    filtered = signal.fftconvolve(np.abs(x), edge_detector)
-
-    filtered = filtered/np.max(filtered)
-    # Shift signal by half the window size to line up with onset
-    filtered = filtered[window_size//2:]
-    peaks, _ = signal.find_peaks(filtered, height=0.1, distance=round(window_size*1.5))
-
-    if (plot):
-        plt.plot(x)
-        for peak in peaks:
-            plt.axvline(peak,color='r')
-        plt.show()
-
+def findRests(x, Fs, plot=False):
     # Rest Detection
     normalized = np.abs(x)/np.max(np.abs(x))
     threshold = 0.04
@@ -75,8 +56,30 @@ def findPianoOnsets(x, Fs, plot=False):
             plt.axvline(L,color='r')
             plt.axvline(R,color='g')
         plt.show()
+    return [(L,True) for (L,R) in new_rests]
+
+def findPianoOnsets(x, Fs, plot=False):
+    window_size = round(int((5200/44100)*Fs))
+
+    window = signal.gaussian(window_size, std = window_size/(6))
+    edge_detector = np.ediff1d(window)
+
+
+    filtered = signal.fftconvolve(np.abs(x), edge_detector)
+
+    filtered = filtered/np.max(filtered)
+    # Shift signal by half the window size to line up with onset
+    filtered = filtered[window_size//2:]
+    peaks, _ = signal.find_peaks(filtered, height=0.1, distance=round(window_size*1.5))
+
+    if (plot):
+        plt.plot(x)
+        for peak in peaks:
+            plt.axvline(peak,color='r')
+        plt.show()
+
     peaks = list(zip(peaks,[False]*len(peaks)))
-    rests = [(L,True) for (L,R) in new_rests]
+    rests = findRests(x,Fs,plot)
     onsets = sorted(peaks+rests, key=lambda x: x[0])
     plt.plot(x)
     for onset in onsets:
@@ -96,6 +99,7 @@ def findViolinOnsets(x, Fs, plot=False):
     med = med/np.max(med)
     threshold = 0.1
     peaks, _ = signal.find_peaks(med, height=threshold, distance=100)
+    dips, _ = signal.find_peaks(-med)
 
     minima = []
     for i in range(0,len(peaks)):
@@ -104,18 +108,33 @@ def findViolinOnsets(x, Fs, plot=False):
             indicies = np.where(z<threshold)
             minima.append(indicies[0][-1])
         else:
-            minima.append(np.argmin(med[peaks[i-1]:peaks[i]])+peaks[i-1])
+            '''
+            z = med[peaks[i-1]:peaks[i]]
+            index = np.argmin(z)
+            minima.append(index+peaks[i-1])
+            '''
+            z = dips[(dips>peaks[i-1]) & (dips<peaks[i])]
+            index = np.argmin(med[z])
+            indicies = np.where(np.isclose(med[peaks[i-1]:peaks[i]],med[z[index]], atol=0.001))
+            minima.append(peaks[i-1]+indicies[0][-1])
+
     peaks = [minima[i]*window_size/2 for i in range(0,len(minima))]
     if (plot):
         plt.plot(x)
         for peak in peaks:
             plt.axvline(peak,color='r')
         plt.show()
-    # Add an onset to the end to capture last note
-    peaks.append(len(x)-1)
-    peaks = np.array(peaks)
     peaks = list(zip(peaks,[False]*len(peaks)))
-    return peaks
+    rests = findRests(x,Fs,plot)
+    onsets = sorted(peaks, key=lambda x: x[0])
+    plt.plot(x)
+    interpolated = np.interp(np.arange(len(x)), np.arange(len(med))*window_size/2, med)
+    plt.plot(interpolated)
+    for onset in onsets:
+        plt.axvline(onset[0], color='r')
+    plt.show()
+
+    return onsets
 
 # Returns the duration of notes in eighth notes.
 # Tempo is bpm for a quarter note
