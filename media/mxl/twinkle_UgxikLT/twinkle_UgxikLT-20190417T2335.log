@@ -1,0 +1,52 @@
+2019-04-17 23:35:51,509 INFO [twinkle_UgxikLT]                 Book.java:473  | 1 sheet in media\sheets\twinkle_UgxikLT.pdf
+2019-04-17 23:35:52,076 INFO []                 Book.java:1660 | Stored /book.xml
+2019-04-17 23:35:52,076 INFO []                 Book.java:1613 | Book stored as media\mxl\twinkle_UgxikLT\twinkle_UgxikLT.omr
+2019-04-17 23:35:52,110 INFO []                 Book.java:1327 | Book reaching PAGE on sheets:[#1]
+2019-04-17 23:35:52,116 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | LOAD
+2019-04-17 23:35:53,238 INFO [twinkle_UgxikLT]                 Book.java:1226 | Loaded image 1 2549x3299 from media\sheets\twinkle_UgxikLT.pdf
+2019-04-17 23:35:53,240 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | BINARY
+2019-04-17 23:35:54,559 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | SCALE
+2019-04-17 23:35:54,590 INFO [twinkle_UgxikLT]         ScaleBuilder.java:557  | Second combo peak too different (182,182,182), ignored
+2019-04-17 23:35:54,597 INFO [twinkle_UgxikLT]         ScaleBuilder.java:492  | Beam minHeight:5 maxHeight:17 quorum:689
+2019-04-17 23:35:54,601 INFO [twinkle_UgxikLT]         ScaleBuilder.java:235  | No beam key found, guessed value: 11
+2019-04-17 23:35:54,601 INFO [twinkle_UgxikLT]            ScaleStep.java:84   | Scale{line(1,1,2) interline(17,18,18) beam(11 extra)}
+2019-04-17 23:35:54,601 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | GRID
+2019-04-17 23:35:55,117 INFO [twinkle_UgxikLT]       LinesRetriever.java:447  | Global slope: 0.00000
+2019-04-17 23:35:55,187 INFO [twinkle_UgxikLT]    ClustersRetriever.java:235  | Retrieved line clusters: 3 of size: 5 with interline: interline(17,18,18)
+2019-04-17 23:35:55,356 INFO [twinkle_UgxikLT]            PeakGraph.java:177  | Systems: #1[1] #2[2] #3[3]
+2019-04-17 23:35:55,776 INFO [twinkle_UgxikLT]        SystemManager.java:731  | 1 part along 3 systems
+2019-04-17 23:35:55,781 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | HEADERS
+2019-04-17 23:35:56,306 INFO [twinkle_UgxikLT]      BasicClassifier.java:362  | Classifier loaded XML norms.
+2019-04-17 23:35:56,316 INFO [twinkle_UgxikLT]   AbstractClassifier.java:348  | Classifier data loaded from default uri file:///C:/Users/Ally/My%20Documents/Capstone/CapstoneDB/res/basic-classifier.zip
+2019-04-17 23:35:57,831 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | STEM_SEEDS
+2019-04-17 23:35:57,932 INFO [twinkle_UgxikLT]        StemSeedsStep.java:93   | stem(1 max:4)
+2019-04-17 23:35:57,991 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | BEAMS
+2019-04-17 23:36:02,825 INFO [twinkle_UgxikLT]       BlackHeadSizer.java:95   | Spots black-head retrieval diameter: 16.2
+2019-04-17 23:36:02,882 INFO [twinkle_UgxikLT]       BlackHeadSizer.java:243  | Core black head count: 16 blackHead(width:21.0~0.0 height:17.8~1.0)
+2019-04-17 23:36:02,888 INFO [twinkle_UgxikLT]       BlackHeadSizer.java:248  | MusicFont{name:MusicalSymbols pointSize:70}
+2019-04-17 23:36:02,946 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | LEDGERS
+2019-04-17 23:36:03,086 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | HEADS
+2019-04-17 23:36:04,543 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | STEMS
+2019-04-17 23:36:04,692 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | REDUCTION
+2019-04-17 23:36:04,742 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | CUE_BEAMS
+2019-04-17 23:36:04,744 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | TEXTS
+2019-04-17 23:36:07,499 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | MEASURES
+2019-04-17 23:36:07,515 INFO [twinkle_UgxikLT]                 Page.java:251  | 12 raw measures: [4 in system#1, 4 in system#2, 4 in system#3]
+2019-04-17 23:36:07,516 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | CHORDS
+2019-04-17 23:36:07,538 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | CURVES
+2019-04-17 23:36:08,288 INFO [twinkle_UgxikLT]         SlursBuilder.java:156  | Slurs: 0
+2019-04-17 23:36:08,307 INFO [twinkle_UgxikLT]      SegmentsBuilder.java:110  | Segments: 20
+2019-04-17 23:36:08,319 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | SYMBOLS
+2019-04-17 23:36:08,539 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | LINKS
+2019-04-17 23:36:08,559 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | RHYTHMS
+2019-04-17 23:36:08,639 INFO [twinkle_UgxikLT]       StepMonitoring.java:93   | PAGE
+2019-04-17 23:36:08,648 INFO [twinkle_UgxikLT]            SheetStub.java:974  | Stub#1 storing
+2019-04-17 23:36:08,662 INFO [twinkle_UgxikLT]                 Book.java:1660 | Stored /book.xml
+2019-04-17 23:36:08,824 INFO [twinkle_UgxikLT]              Picture.java:784  | Stored /sheet#1/BINARY.xml
+2019-04-17 23:36:09,282 INFO [twinkle_UgxikLT]                Sheet.java:1246 | Stored /sheet#1/sheet#1.xml
+2019-04-17 23:36:09,621 INFO [twinkle_UgxikLT]            SheetStub.java:979  | Sheet{twinkle_UgxikLT} disposed
+2019-04-17 23:36:10,139 INFO [twinkle_UgxikLT]            SheetStub.java:632  | Loaded /sheet#1/sheet#1.xml
+2019-04-17 23:36:10,143 INFO [twinkle_UgxikLT]                 Book.java:1451 | Scores built: 1
+2019-04-17 23:36:12,337 INFO [twinkle_UgxikLT]        ScoreExporter.java:88   | Score twinkle_UgxikLT exported to media\mxl\twinkle_UgxikLT\twinkle_UgxikLT.mxl
+2019-04-17 23:36:12,480 INFO [twinkle_UgxikLT]                 Book.java:1660 | Stored /book.xml
+2019-04-17 23:36:12,480 INFO [twinkle_UgxikLT]                 Book.java:1613 | Book stored as media\mxl\twinkle_UgxikLT\twinkle_UgxikLT.omr

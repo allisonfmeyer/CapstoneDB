@@ -77,6 +77,9 @@
             <a href="{% url 'logged_home' chosen_song='twinkle' %}">Twinkle Twinkle Little Star</a>
             <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
             <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
+            {% if chosen_song %}
+            <br><a href="{% url 'logged_home' chosen_song='uploaded' %}">{{song.title}}</a>
+            {% endif %}
           </div>
         </div>
         <div class="column" id="right">

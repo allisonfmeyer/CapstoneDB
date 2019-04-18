@@ -120,6 +120,47 @@ def songOfTheWindModel():
     return model
 
 '''
+  This function takes in string output from existing xml2abc and parses into an ABCSong model
+'''
+def make_model(result):
+    result = str(result)
+    model = ABCSong()
+    # Parse title
+    title = result.split("T:")[1]
+    title = title.split("L:")[0]
+    title = title[:-4]
+    model.title = title
+    # Parse time sig
+    time_sig = result.split("M:")[1]
+    time_sig = time_sig.split("K:")[0]
+    time_sig = time_sig[:-4]
+    model.time_sig = time_sig
+    # Parse note length
+    length = result.split("L:")[1]
+    length = length.split("M:")[0]
+    length = length[:-4]
+    model.length = length
+    # Parse key
+    key = result.split("K:")[1]
+    key = key.split(" ",1)[0]
+    key = key[:-4]
+    model.key = key
+    # Parse song
+    song = result.split("K:")[1]
+    song = song.split(" ",1)[1]
+    song = song.split("]")[0]
+    percents = True
+    while ('%' in song):
+        index1 = song.index("%")
+        index2 = song.index("n")
+        song = song[:index1] + song[index2+1:]
+    song = song.replace('$','n')
+    song += "]n"
+    model.song = song
+    model.save()
+    return model
+
+'''
   This function is solely called to render the initial logged in page, before
   a user has selected a song to play.
 '''
@@ -131,12 +172,15 @@ def logged_home_action_init(request):
             # Get uploaded pdf and send to Audiveris for mxl conversion
             sheet = Sheet.objects.latest('uploaded_at')
             pdf = sheet.sheet
-            #subprocess.call('cd audiveris', shell=True)
             subprocess.call('gradle run -PcmdLineArgs="-batch,-export,-output,media/mxl,--,media/'+str(pdf)+'"', shell=True)
-            return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm()})
+            # Run mxl file on ABCJs formatter
+            pdf_name = str(pdf).split("sheets/")[1]
+            pdf_name = pdf_name.split(".")[0]
+            result = subprocess.check_output('python noteable/xml2abc.py [-h] [-u] [-m] [-c C] [-d D] [-v V] [-n CPL] [-b BPL] [-o DIR] [-x] [-p FMT] [-t] [-s] media/mxl/'+pdf_name+'/'+pdf_name+'.mxl', shell=True)
+            result_model = make_model(result)
+            return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm(), 'model': result_model })
     else:
         form = SheetForm()
-    #sheet = Sheet.objects.latest('uploaded_at')
     return render(request, 'noteable/logged_home_init.html', { 'form': form })
 
 
@@ -148,10 +192,15 @@ def logged_home_action_init(request):
   the flow of selected song data between views.
 '''
 def logged_home_action(request, chosen_song):
-    song = getSongObject(chosen_song)
-    # Set session parameter to song once song is selected to access in other views
-    request.session['song'] = chosen_song
-    return render(request, 'noteable/logged_home.html', { 'song': song })
+    if (chosen_song == ('twinkle' or 'lightlyRow' or 'songOfTheWind')):
+        song = getSongObject(chosen_song)
+        # Set session parameter to song once song is selected to access in other views
+        request.session['song'] = chosen_song
+        return render(request, 'noteable/logged_home.html', { 'song': song })
+    else:
+        song = ABCSong.objects.latest('id')
+        request.session['song'] = 'uploaded'
+    return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True })
 
 '''
   This function takes a string of the song name and returns
@@ -174,7 +223,11 @@ def getSongObject(chosen_song):
   to the db containing an uploaded song model.
 '''
 def play_action(request):
-    song = getSongObject(request.session.get('song', None))
+    song = request.session.get('song', None)
+    if (song == ('twinkle' or 'lightlyRow' or 'songOfTheWind')):
+        song = getSongObject(song)
+    else:
+        song = ABCSong.objects.latest('id')
     if request.method == 'POST':
         form = RecordForm(request.POST, request.FILES)
         if form.is_valid():
