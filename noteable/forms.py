@@ -2,7 +2,7 @@ from django import forms
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from noteable.models import Record
+from noteable.models import Record, Sheet
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length = 20)
@@ -92,3 +92,8 @@ class RecordForm(forms.ModelForm):
 	class Meta:
 		model = Record
 		fields = ('title', 'recording', 'tempo', )
+
+class SheetForm(forms.ModelForm):
+    class Meta:
+        model = Sheet
+        fields = ('sheet', )

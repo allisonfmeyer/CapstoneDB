@@ -8,11 +8,25 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.files.storage import FileSystemStorage
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
-from noteable.forms import LoginForm, RegistrationForm, RecordForm
-from noteable.models import Record, ABCSong
+from noteable.forms import LoginForm, RegistrationForm, RecordForm, SheetForm
+from noteable.models import Record, ABCSong, Sheet
 from noteable.audio import main
+import os, subprocess
+from subprocess import PIPE
 
-
+# NOT USING YET
+def upload(request):
+ 
+    customHeader = request.META['HTTP_MYCUSTOMHEADER']
+ 
+    # obviously handle correct naming of the file and place it somewhere like media/uploads/
+    uploadedFile = open("recording.ogg", "wb")
+    # the actual file is in request.body
+    uploadedFile.write(request.body)
+    uploadedFile.close()
+    # put additional logic like creating a model instance or something like this here
+    return HttpResponse(escape(repr(request)))
+    
 def home_page_action(request):
 	return render(request, 'noteable/home.html', {})
 
@@ -110,6 +124,22 @@ def songOfTheWindModel():
   a user has selected a song to play.
 '''
 def logged_home_action_init(request):
+    if request.method == 'POST':
+        form = SheetForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            # Get uploaded pdf and send to Audiveris for mxl conversion
+            sheet = Sheet.objects.latest('uploaded_at')
+            pdf = sheet.sheet
+            #subprocess.call('cd audiveris', shell=True)
+            subprocess.call('gradle run -PcmdLineArgs="-batch,-export,-output,media/mxl,--,media/'+str(pdf)+'"', shell=True)
+            return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm()})
+    else:
+        form = SheetForm()
+    #sheet = Sheet.objects.latest('uploaded_at')
+    return render(request, 'noteable/logged_home_init.html', { 'form': form })
+
+
     return render(request, 'noteable/logged_home_init.html', {})
 
 '''
@@ -242,8 +272,10 @@ def percentage(song, wrong_classes):
     song = song.replace("_", "")
     song = song.replace("^", "")
     song = song.replace("=", "")
-    # Strips digits
+    # Strips all digits
     song = ''.join([i for i in song if not i.isdigit()])
+    # Count number of chords
+    num_chords = song.count("[")
     # Strip chord and end of song indicator
     song = song.replace("[", "")
     song = song.replace("]", "")
@@ -260,7 +292,13 @@ def results_action(request):
     sheet_song = getSongObject(request.session.get('song', None))
     record = Record.objects.latest('uploaded_at')
     audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
-    
+
+    #Examples for demo!
+    # 8 wrong notes (ok)
+    #audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
+    #13 wrong notes (bad)
+    #audio_song = "D D A A|B B A2|G G F F|E E D2|n A A G G|F F E2|A A G G|F F E2|n F F c c|d d c2|B B A A|G G D2|]n"
+
     # Update song to include any discrepencies between recording and sheet music as chords
     (result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
     sheet_song.song = result_song

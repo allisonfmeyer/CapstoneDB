@@ -59,8 +59,13 @@
   <section class="py-5">
     <span class="anchor" id=""></span>
     <div class="container" id="ourProduct">
-      <input type="button" id="loadXmlFile" value="Upload Sheet Music" onclick="document.getElementById('xmlFile').click();" />
-      <input type="file" style="display:none;" id="xmlFile" name="file"/>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload Sheet Music</button>
+      </form>
+      <!-- <input type="button" id="loadXmlFile" value="Upload Sheet Music" onclick="document.getElementById('xmlFile').click();" />
+      <input type="file" style="display:none;" id="xmlFile" name="file"/> -->
       <br><br>
       <div class="row">
         <div class="column" id="left">

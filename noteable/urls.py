@@ -14,4 +14,5 @@ urlpatterns = [
     path('play', views.play_action, name='play'),
     path('results', views.results_action, name='results'),
     path('account', views.account_action, name='account'),
+    path('upload', views.upload, name='upload'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
