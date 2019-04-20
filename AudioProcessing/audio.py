@@ -179,7 +179,7 @@ def findFrequencies(onsets,x, Fs, plot=False):
         sorted_d = sorted_d[:min(max_frequencies, len(sorted_d))]
         frequencies[i], amplitudes[i] = list(list(zip(*sorted_d))[0]), list(list(zip(*sorted_d))[1])
         frequencies[i] = Fs*np.array(frequencies[i])/(2*len(spectrum))
-        if len(frequencies[i]==0):
+        if len(frequencies[i])==0:
             frequencies[i] = [None]
             amplitudes[i] = [None]
     return (frequencies, amplitudes, spectrum)
@@ -295,7 +295,6 @@ def main(audiofile, tempo, timeSignature, debug=False):
         print("Durations")
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
-    print(noteDurList)
     return noteDurList
     #return convertToString(noteDurList, timeSignature)
 
@@ -304,6 +303,5 @@ if __name__=="__main__":
     timeSignature = sys.argv[2]
     tempo = int(sys.argv[3])
     x = main(audiofile, tempo, timeSignature)
-    for note in x:
-        print(note)
+    print(x)
 
