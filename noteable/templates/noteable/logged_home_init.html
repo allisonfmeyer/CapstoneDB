@@ -67,8 +67,6 @@
         {{ form.as_p }}
         <button type="submit">Upload Sheet Music</button>
       </form>
-      <!-- <input type="button" id="loadXmlFile" value="Upload Sheet Music" onclick="document.getElementById('xmlFile').click();" />
-      <input type="file" style="display:none;" id="xmlFile" name="file"/> -->
       <br><br>
       <div class="row">
         <div class="column" id="left">
@@ -78,7 +76,7 @@
             <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
             <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
             {% if model %}
-            <br><a href="{% url 'logged_home' chosen_song='uploaded' %}">{{model.title}}</a>  
+            <br><a href="{% url 'logged_home' chosen_song="+{{model.title}}+" %}">{{model.title}}</a>  
             {% endif %}          
           </div>
         </div>

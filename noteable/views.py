@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
+from django.core import serializers
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -15,6 +16,7 @@ import os, subprocess
 from subprocess import PIPE
 
 # NOT USING YET
+'''
 def upload(request):
  
     customHeader = request.META['HTTP_MYCUSTOMHEADER']
@@ -26,7 +28,7 @@ def upload(request):
     uploadedFile.close()
     # put additional logic like creating a model instance or something like this here
     return HttpResponse(escape(repr(request)))
-    
+'''    
 def home_page_action(request):
 	return render(request, 'noteable/home.html', {})
 
@@ -192,7 +194,8 @@ def logged_home_action_init(request):
   the flow of selected song data between views.
 '''
 def logged_home_action(request, chosen_song):
-    if (chosen_song == ('twinkle' or 'lightlyRow' or 'songOfTheWind')):
+    hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
+    if (chosen_song in hard_songs):
         song = getSongObject(chosen_song)
         # Set session parameter to song once song is selected to access in other views
         request.session['song'] = chosen_song
@@ -217,6 +220,30 @@ def getSongObject(chosen_song):
         return songOfTheWindModel()
     return None
 
+def upload(request):
+    if request.method != 'POST':
+        raise Http404
+    new_record_form = RecordForm(request.POST, request.FILES)
+    if new_record_form.is_valid():
+        new_record_form.save()
+    else:
+        print(new_record_form.errors)
+
+    latest = Record.objects.latest('uploaded_at')
+    latest.save()
+    #url = {}
+    #url['title'] = latest.recording.url
+    url = Record(title=latest.recording.url, recording=None, tempo=100)
+    url.title = latest.recording.url
+    url.recording = None
+    url.tempo = 100
+    #url.save()
+    #print(url)
+    #print(url['title'])
+
+    response_text = serializers.serialize('json', [latest, url])
+    return HttpResponse(response_text, content_type='application/json')
+
 '''
   This function renders the play url page. It retrieves the chosen song by calling
   the session parameter, then either loads a blank form or saves a posted form
@@ -224,7 +251,8 @@ def getSongObject(chosen_song):
 '''
 def play_action(request):
     song = request.session.get('song', None)
-    if (song == ('twinkle' or 'lightlyRow' or 'songOfTheWind')):
+    hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
+    if (song in hard_songs):
         song = getSongObject(song)
     else:
         song = ABCSong.objects.latest('id')
@@ -233,10 +261,14 @@ def play_action(request):
         if form.is_valid():
             form.save()
             record = Record.objects.latest('uploaded_at')
+            
             return render(request, 'noteable/play.html', { 'form': RecordForm(), 'record': record, 'song': song })
     else:
         form = RecordForm()
-    record = Record.objects.latest('uploaded_at')
+    try:
+        record = Record.objects.latest('uploaded_at')
+    except Record.DoesNotExist:
+            record = Record(title='None', tempo='n/a')
     return render(request, 'noteable/play.html', { 'form': form, 'record': record, 'song': song })
 
 ''' 
@@ -275,19 +307,19 @@ def compareSongs(song1, song2):
                     # Mismatched notes without accidentals
                     if song2[song2_index].upper() in note_values:
                         result_song += "[" + song1[index] + song2[song2_index] + "]"
-                        curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                        curr_class = '.abcjs-v1'+'.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
                         wrong_classes.append(curr_class)
                         song2_index += 1
                     # Accidental in note on recorded song
                     elif song2[song2_index] in accidentals:
                         result_song += "[" + song1[index] + song2[song2_index] + song2[song2_index+1] + "]"
-                        curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                        curr_class = '.abcjs-v1'+'.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
                         wrong_classes.append(curr_class)
                         song2_index += 2
                     # Song 2 ran out of notes but still needs to reach end of string
                     else:
                         result_song += song1[index]
-                        curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                        curr_class = '.abcjs-v1'+'.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
                         wrong_classes.append(curr_class)
                         song2_index += 1
                 else:
@@ -296,8 +328,9 @@ def compareSongs(song1, song2):
         else:
             result_song += song1[index]
             if song1[index].upper() in note_values:
-                curr_class = '.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
+                curr_class = '.abcjs-v1'+'.abcjs-l'+str(curr_line)+'.abcjs-m'+str(curr_meas)+'.abcjs-n'+str(curr_note)
                 wrong_classes.append(curr_class)
+    #wrong_classes.append('abcjs-top-line')
     return (result_song, wrong_classes)
 
 '''
@@ -345,16 +378,35 @@ def results_action(request):
     sheet_song = getSongObject(request.session.get('song', None))
     record = Record.objects.latest('uploaded_at')
     audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
-
+    '''
+    X:1
+    M:4/4
+    L:1/16
+    %%stretchlast .7
+    Q:1/4=100
+    T:Piano
+    %%staves {(PianoRightHand) (PianoLeftHand)}
+    V:PianoRightHand clef=treble
+    V:PianoLeftHand clef=bass
+    K:C
+    [V: PianoRightHand] !mp!e2f2 e2d2 c2B2 A4|!>(!B2d2 g4 c6 !>)!e2|!p![G4e4] z4 A4 G4|c12 z4|[A12f12] [g4d4]|z4 !<(!B4 !<)![A8c8]|
+    !mf!A4 z4 d8|B8 [G4c4] z4|f2A2 c4 f4 g4|[f12d12] e4|!<(!A4 A4 c2e2 !<)!g4|!f!e8 z8|
+    [A4d4] z4 A8|BcBA G4 c4 G2B2|A2G2 A2B2 c4 B2G2|c12 z4|]
+    [V: PianoLeftHand] [E,12C,12] F,4|[G,8D,8] [C,8E,8]|G,4 C,4 C,4 B,,A,,C,B,,|A,,12 z4|A,,4 B,,4 C,2D,2 B,,C,D,E,|C,2E,2 G,4 E,2F,2 G,4|
+    F,4 A,4 [A,8F,8]|G,2F,2 E,2D,2 [C,4E,4] z4|[F,8A,8] [D,4A,4] z4|F,2G,2 A,2F,2 D,2F,2 C,2B,,2|C,4 F,A,D,F, E,4 z4|C,8 z8|
+    F,4 E,4 F,4 A,4|[D,8G,8] E,4 z4|C,4 [C,4F,4] z4 G,4|C,12 z4|]
+    '''
     #Examples for demo!
     # 8 wrong notes (ok)
-    #audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
+    audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
     #13 wrong notes (bad)
     #audio_song = "D D A A|B B A2|G G F F|E E D2|n A A G G|F F E2|A A G G|F F E2|n F F c c|d d c2|B B A A|G G D2|]n"
 
     # Update song to include any discrepencies between recording and sheet music as chords
     (result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
-    sheet_song.song = result_song
+    #sheet_song.song = result_song
+    sheet_song.song = "[V: OrigPiece] " + sheet_song.song + " [V: PlayedPiece] " + audio_song
+    print(sheet_song.song)
 
     perc = percentage(result_song, wrong_classes)
     perc_color = percentage_color(perc)

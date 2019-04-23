@@ -22,6 +22,7 @@ function badSaveMusic() {
   -> html as variables
  **/
 function addNewLines(song) {
+  //return song.replace("|n", "|\n");
   return song.replace(/n/g, "\n");
 }
 
@@ -35,7 +36,11 @@ function makeABCString(title, time_sig, length, key, song) {
   m = "M: " + time_sig + "\n";
   l = "L: " + length + "\n";
   r = "R: \n";
+  stave = "%%staves {(OrigPiece) (PlayedPiece)} \n"
+  v1 = "V:OrigPiece clef=treble \n" 
+  v2 = "V:PlayedPiece clef=treble \n"
   k = "K: " + key + "\n";
   s = addNewLines(song);
-  return t + m + l + r + k + s;
+  console.log(t + m + l + r + stave + v1 + v2 + k + s)
+  return (t + m + l + r + stave + v1 + v2 + k + s);
 }
