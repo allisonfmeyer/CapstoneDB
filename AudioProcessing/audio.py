@@ -98,7 +98,7 @@ def findViolinOnsets(x, Fs, plot=False):
     med = signal.medfilt(E, 55)
     med = med/np.max(med)
     threshold = 0.1
-    peaks, _ = signal.find_peaks(med, height=threshold, distance=100)
+    peaks, _ = signal.find_peaks(med, height=threshold) #, distance=00)
     dips, _ = signal.find_peaks(-med)
 
     minima = []
@@ -126,7 +126,7 @@ def findViolinOnsets(x, Fs, plot=False):
         plt.show()
     peaks = list(zip(peaks,[False]*len(peaks)))
     rests = findRests(x,Fs,plot)
-    onsets = sorted(peaks, key=lambda x: x[0])
+    onsets = sorted(peaks+rests, key=lambda x: x[0])
     plt.plot(x)
     interpolated = np.interp(np.arange(len(x)), np.arange(len(med))*window_size/2, med)
     plt.plot(interpolated)
@@ -179,6 +179,9 @@ def findFrequencies(onsets,x, Fs, plot=False):
         sorted_d = sorted_d[:min(max_frequencies, len(sorted_d))]
         frequencies[i], amplitudes[i] = list(list(zip(*sorted_d))[0]), list(list(zip(*sorted_d))[1])
         frequencies[i] = Fs*np.array(frequencies[i])/(2*len(spectrum))
+        if len(frequencies[i])==0:
+            frequencies[i] = [None]
+            amplitudes[i] = [None]
     return (frequencies, amplitudes, spectrum)
 
 # Implements two way matching algorithm to find fundamental frequency
@@ -239,6 +242,7 @@ def convertToString(L, timeSignature):
     for (freq, duration) in L:
         num = duration//2
         count += num
+        # Map -inf to a rest
         note = pianoNoteMap[int(freq)]
         if(count == beats):
             measureCount += 1
@@ -291,7 +295,6 @@ def main(audiofile, tempo, timeSignature, debug=False):
         print("Durations")
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
-    print(noteDurList)
     return noteDurList
     #return convertToString(noteDurList, timeSignature)
 
@@ -300,6 +303,5 @@ if __name__=="__main__":
     timeSignature = sys.argv[2]
     tempo = int(sys.argv[3])
     x = main(audiofile, tempo, timeSignature)
-    for note in x:
-        print(note)
+    print(x)
 
