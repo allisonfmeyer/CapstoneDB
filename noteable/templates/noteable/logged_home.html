@@ -67,8 +67,11 @@
   <section class="py-5">
     <span class="anchor" id=""></span>
     <div class="container" id="ourProduct">
-      <input type="button" id="loadXmlFile" value="Upload Sheet Music" onclick="document.getElementById('xmlFile').click();" />
-      <input type="file" style="display:none;" id="xmlFile" name="file"/>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload Sheet Music</button>
+      </form>
       <br><br>
       <div class="row">
         <div class="column" id="left">
@@ -77,9 +80,9 @@
             <a href="{% url 'logged_home' chosen_song='twinkle' %}">Twinkle Twinkle Little Star</a>
             <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
             <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
-            {% if chosen_song %}
-            <br><a href="{% url 'logged_home' chosen_song='uploaded' %}">{{song.title}}</a>
-            {% endif %}
+            {% if model %}
+            <br><a href="{% url 'logged_home' chosen_song="+{{model.title}}+" %}">{{model.title}}</a>  
+            {% endif %} 
           </div>
         </div>
         <div class="column" id="right">

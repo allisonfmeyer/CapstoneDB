@@ -185,25 +185,43 @@ def logged_home_action_init(request):
         form = SheetForm()
     return render(request, 'noteable/logged_home_init.html', { 'form': form })
 
-
-    return render(request, 'noteable/logged_home_init.html', {})
-
 '''
   This function is called every time a different song is selected but before a user
   has decided to begin recording. The chosen song is passed in as a parameter, initializing
   the flow of selected song data between views.
 '''
 def logged_home_action(request, chosen_song):
+    result_model = ''
+    # Uploading new song
+    if request.method == 'POST':
+        form = SheetForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            # Get uploaded pdf and send to Audiveris for mxl conversion
+            sheet = Sheet.objects.latest('uploaded_at')
+            pdf = sheet.sheet
+            subprocess.call('gradle run -PcmdLineArgs="-batch,-export,-output,media/mxl,--,media/'+str(pdf)+'"', shell=True)
+            # Run mxl file on ABCJs formatter
+            pdf_name = str(pdf).split("sheets/")[1]
+            pdf_name = pdf_name.split(".")[0]
+            result = subprocess.check_output('python noteable/xml2abc.py [-h] [-u] [-m] [-c C] [-d D] [-v V] [-n CPL] [-b BPL] [-o DIR] [-x] [-p FMT] [-t] [-s] media/mxl/'+pdf_name+'/'+pdf_name+'.mxl', shell=True)
+            result_model = make_model(result)
+            #return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm(), 'model': result_model })
+
     hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
     if (chosen_song in hard_songs):
         song = getSongObject(chosen_song)
         # Set session parameter to song once song is selected to access in other views
         request.session['song'] = chosen_song
-        return render(request, 'noteable/logged_home.html', { 'song': song })
+        if (result_model != ''):
+            return render(request, 'noteable/logged_home.html', { 'song': song, 'form': SheetForm(), 'model': result_model })
+        return render(request, 'noteable/logged_home.html', { 'song': song, 'form': SheetForm() })
     else:
         song = ABCSong.objects.latest('id')
         request.session['song'] = 'uploaded'
-    return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True })
+    if (result_model != ''):
+        return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True, 'form': SheetForm(), 'model': result_model })
+    return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True, 'form': SheetForm() })
 
 '''
   This function takes a string of the song name and returns
@@ -231,15 +249,10 @@ def upload(request):
 
     latest = Record.objects.latest('uploaded_at')
     latest.save()
-    #url = {}
-    #url['title'] = latest.recording.url
     url = Record(title=latest.recording.url, recording=None, tempo=100)
     url.title = latest.recording.url
     url.recording = None
     url.tempo = 100
-    #url.save()
-    #print(url)
-    #print(url['title'])
 
     response_text = serializers.serialize('json', [latest, url])
     return HttpResponse(response_text, content_type='application/json')
@@ -375,36 +388,26 @@ def percentage(song, wrong_classes):
   according to percent correctness.
 '''
 def results_action(request):
-    sheet_song = getSongObject(request.session.get('song', None))
+    hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
+    song = request.session.get('song', None)
+    if (song in hard_songs):
+        sheet_song = getSongObject(song)
+    else:
+        sheet_song = ABCSong.objects.latest('id')
+
+    #sheet_song = getSongObject(request.session.get('song', None))
     record = Record.objects.latest('uploaded_at')
-    audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
-    '''
-    X:1
-    M:4/4
-    L:1/16
-    %%stretchlast .7
-    Q:1/4=100
-    T:Piano
-    %%staves {(PianoRightHand) (PianoLeftHand)}
-    V:PianoRightHand clef=treble
-    V:PianoLeftHand clef=bass
-    K:C
-    [V: PianoRightHand] !mp!e2f2 e2d2 c2B2 A4|!>(!B2d2 g4 c6 !>)!e2|!p![G4e4] z4 A4 G4|c12 z4|[A12f12] [g4d4]|z4 !<(!B4 !<)![A8c8]|
-    !mf!A4 z4 d8|B8 [G4c4] z4|f2A2 c4 f4 g4|[f12d12] e4|!<(!A4 A4 c2e2 !<)!g4|!f!e8 z8|
-    [A4d4] z4 A8|BcBA G4 c4 G2B2|A2G2 A2B2 c4 B2G2|c12 z4|]
-    [V: PianoLeftHand] [E,12C,12] F,4|[G,8D,8] [C,8E,8]|G,4 C,4 C,4 B,,A,,C,B,,|A,,12 z4|A,,4 B,,4 C,2D,2 B,,C,D,E,|C,2E,2 G,4 E,2F,2 G,4|
-    F,4 A,4 [A,8F,8]|G,2F,2 E,2D,2 [C,4E,4] z4|[F,8A,8] [D,4A,4] z4|F,2G,2 A,2F,2 D,2F,2 C,2B,,2|C,4 F,A,D,F, E,4 z4|C,8 z8|
-    F,4 E,4 F,4 A,4|[D,8G,8] E,4 z4|C,4 [C,4F,4] z4 G,4|C,12 z4|]
-    '''
+    #audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
+    (audio_song, wrong_classes) = main(record.recording, record.tempo, sheet_song.time_sig, sheet_song.song, debug=False)
+    
     #Examples for demo!
     # 8 wrong notes (ok)
-    audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
+    #audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
     #13 wrong notes (bad)
     #audio_song = "D D A A|B B A2|G G F F|E E D2|n A A G G|F F E2|A A G G|F F E2|n F F c c|d d c2|B B A A|G G D2|]n"
 
     # Update song to include any discrepencies between recording and sheet music as chords
     (result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
-    #sheet_song.song = result_song
     sheet_song.song = "[V: OrigPiece] " + sheet_song.song + " [V: PlayedPiece] " + audio_song
     print(sheet_song.song)
 
