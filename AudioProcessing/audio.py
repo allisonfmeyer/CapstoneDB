@@ -4,6 +4,8 @@ from scipy import signal
 import sys
 import math
 import matplotlib.pyplot as plt
+import noteMapping as nm
+import verification as v
 
 pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 50: "_B", 51: "B",
                 59: "G", 58: "F", 56:"E"}
@@ -255,7 +257,8 @@ def convertToString(L, timeSignature):
         num = duration//2
         count += num
         # Map -inf to a rest
-        note = pianoNoteMap[int(freq)]
+        if(freq == float("-inf")): note = "z"
+        else: note = nm.freqToNote[int(freq)]
         if(count == beats):
             measureCount += 1
             if(num != 1):
@@ -275,6 +278,44 @@ def convertToString(L, timeSignature):
     result += "]n"
     return result
 
+
+def findNoteinS(src, s):
+    num = 0
+    cur_line = 1
+    cur_measure = 1
+    cur_note = 0
+    for c in s:
+        if(num == src):
+            return '.abcjs-v1'+'.abcjs-l'+str(cur_line)+'.abcjs-m'+str(cur_measure)+'.abcjs-n'+str(cur_note)
+        if(c.isspace()):
+            continue
+        elif(c.isdigit()):
+            continue
+        elif(c == "|"):
+            cur_measure += 1
+            cur_note = 1
+        elif(c == "n"):
+            cur_line += 1
+            cur_measure = 1
+            cur_note = 1
+        else: 
+            num += 1
+            cur_note += 1
+    return ""
+
+def identifyIncorrect(L, s):
+    editDis = L[0]
+    incorrectTuple = L[1]
+    result = list()
+    for (op, src, dest) in incorrectTuple:
+        print(src)
+        result.append(findNoteinS(src, s))
+    return result
+
+#s = "D D A A|B B A2|G G F F|E E D2|n A A G G|F F E2|A A G G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
+#print(identifyIncorrect([3, [('sub', 1, 1), ('ins', 1, 2), ('sub', 3, 4)]], s))
+
+#print(convertToString([(float("-inf"), 9.0), (53.0, 1.0), (53.0, 1.0), (53.0, 2.0), (51.0, 3.0), (49.0, 2.0), (49.0, 2.0)], "4/4"))
 
 # returns a list of tuples in the form (Piano Key Number, duration)
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
@@ -310,8 +351,12 @@ def main(audiofile, tempo, timeSignature, debug=False):
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
     noteDurList = list(filter(lambda x: x[1]>0, noteDurList))
+    #print(convertToString(noteDurList, "4/4"))
     return noteDurList
-    #return convertToString(noteDurList, timeSignature)
+    #player =  convertToString(noteDurList, timeSignature)
+    #xml = ??
+    #incorrect = v.iterative_levenshtein(xml, player)
+    # return (player, identifyIncorrect(incorrect, player))
 
 if __name__=="__main__":
     audiofile = sys.argv[1]
