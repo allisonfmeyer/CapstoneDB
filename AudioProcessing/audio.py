@@ -11,14 +11,18 @@ pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 50: "_B", 51: "B",
                 59: "G", 58: "F", 56:"E"}
 
 
-def findRests(x, Fs, plot=False):
+def findRests(x, Fs, onsets, plot=False):
     # Rest Detection
     normalized = np.abs(x)/np.max(np.abs(x))
-    threshold = 0.04
-    if (plot):
-        plt.plot(normalized, ',')
-        plt.axhline(threshold, color='r')
-        plt.show()
+
+    window_size=500
+    f, t, Zxx = signal.stft(normalized, fs=Fs, nperseg = window_size)
+    (r,c) = Zxx.shape
+    E = [0 for i in range(0,c)]
+    for i in range(0,c):
+        E[i] = np.sum(np.arange(r)*np.abs(Zxx[:, i])/r)
+    med = signal.medfilt(E, 11)
+    med = med/np.max(med)
 
     ma_window = 100
     ma = signal.fftconvolve(normalized, np.ones(ma_window)/ma_window)
@@ -28,11 +32,15 @@ def findRests(x, Fs, plot=False):
     b, a = signal.butter(5, w, 'low')
     output = 2*signal.filtfilt(b, a, normalized)
 
+    interpolated = np.interp(np.arange(len(normalized)), np.arange(len(med))*window_size/2, med)
+    threshold = np.min(interpolated[int(max(0, onsets[0][0]-10000)):int(onsets[0][0])])*1.3
+
     if (plot):
         plt.plot(normalized, color='b')
-        plt.plot(output, color='k')
+        plt.plot(interpolated, color='k')
         plt.axhline(threshold, color='r')
-    indicies = np.where(output<threshold)[0]
+        plt.show()
+    indicies = np.where(interpolated<=threshold)[0]
 
     rests = []
     if len(indicies)>0:
@@ -45,7 +53,7 @@ def findRests(x, Fs, plot=False):
         rests.append((int(start), int(indicies[-1])))
 
     new_rests = []
-    if len(rests[0])>0:
+    if (len(rests)>0) and len(rests[0])>0:
         first =  rests[0][0]
         (LL,RR) = rests[0]
         for i in range(0,len(rests)-1):
@@ -85,7 +93,7 @@ def findPianoOnsets(x, Fs, plot=False):
         plt.show()
 
     peaks = list(zip(peaks,[False]*len(peaks)))
-    rests = findRests(x,Fs,plot)
+    rests = findRests(x,Fs, peaks, plot)
     onsets = sorted(peaks+rests, key=lambda x: x[0])
     '''
     plt.plot(x)
@@ -130,15 +138,15 @@ def findViolinOnsets(x, Fs, plot=False):
             minima.append(peaks[i-1]+indicies[0][-1])
 
     peaks = [minima[i]*window_size/2 for i in range(0,len(minima))]
+    peaks = list(zip(peaks,[False]*len(peaks)))
     if (plot):
         plt.plot(x)
         for peak in peaks:
-            plt.axvline(peak,color='r')
+            plt.axvline(peak[0],color='r')
         plt.show()
-    rests = findRests(x,Fs,plot)
+    rests = findRests(x,Fs, peaks, plot)
     # Make sure onsets and rests don't start at the same time
     rests = list(filter(lambda x: x[0] not in peaks, rests))
-    peaks = list(zip(peaks,[False]*len(peaks)))
     onsets = sorted(peaks+rests, key=lambda x: x[0])
     '''
     plt.plot(x)
@@ -298,7 +306,7 @@ def findNoteinS(src, s):
             cur_line += 1
             cur_measure = 1
             cur_note = 1
-        else: 
+        else:
             num += 1
             cur_note += 1
     return ""
@@ -326,7 +334,7 @@ def main(audiofile, tempo, timeSignature, debug=False):
     if (x.ndim>1):
         x = np.average(x, axis=1)
 
-    #onsets = findPianoOnsets(x,Fs)
+    #onsets = findPianoOnsets(x,Fs, True)
     onsets = findViolinOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
