@@ -18,7 +18,8 @@ if __name__=="__main__":
     for i in range(0,N):
         MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created automatically)
         MyMIDI.addTempo(track, time, tempo)
-        program = 40 # A Violin
+        #program = 40 # A Violin
+        program = 0 # A piano
         MyMIDI.addProgramChange(track, channel, time, program)
 
         midiNote = 69 #A 440 hz
@@ -26,12 +27,13 @@ if __name__=="__main__":
         restLength = random.choice(noteTimes)
 
         MyMIDI.addNote(track, channel, midiNote, time+restLength/2, 1, volume)
-        MyMIDI.addNote(track, channel, midiNote, time+restLength/2+4, 1, volume)
+        MyMIDI.addNote(track, channel, midiNote, time+restLength/2+1, 1, volume)
 
         with open("notes.mid", "wb") as output_file:
             MyMIDI.writeFile(output_file)
 
         fs = FluidSynth('./040_Florestan_String_Quartet.sf2')
+        fs = FluidSynth('./sound_font.sf2')
         fs.midi_to_audio('notes.mid', 'output.wav')
 
         x, Fs = sf.read('output.wav')
@@ -42,6 +44,8 @@ if __name__=="__main__":
 
         onsets = audio.findViolinOnsets(x,Fs)
         durations = audio.findDuration(list(zip(*onsets))[0], tempo, Fs)
+        print(durations)
+        print(restLength)
 
         durations = audio.main('output.wav',tempo, "asdf", False)
         if (durations[0][0]== -np.inf) and (durations[0][1]==restLength) and (durations[1][0]!= -np.inf):

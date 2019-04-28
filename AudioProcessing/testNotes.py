@@ -18,16 +18,19 @@ if __name__=="__main__":
     for midiNote in range(55, 83):
         MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created automatically)
         MyMIDI.addTempo(track, time, tempo)
-        program = 40 # A Violin
+
+        #program = 40 # A Violin
+        program = 0 # A Piano
         MyMIDI.addProgramChange(track, channel, time, program)
 
-        #midiNote = andom.randint(55,83)
+        #midiNote = random.randint(55,83)
         MyMIDI.addNote(track, channel, midiNote, 0, 1, volume)
 
         with open("singleNote.mid", "wb") as output_file:
             MyMIDI.writeFile(output_file)
 
-        fs = FluidSynth('./040_Florestan_String_Quartet.sf2')
+        #fs = FluidSynth('./040_Florestan_String_Quartet.sf2')
+        fs = FluidSynth('./sound_font.sf2')
         fs.midi_to_audio('singleNote.mid', 'output.wav')
 
         x, Fs = sf.read('output.wav')

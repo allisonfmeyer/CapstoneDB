@@ -33,7 +33,7 @@ def findRests(x, Fs, onsets, plot=False):
     output = 2*signal.filtfilt(b, a, normalized)
 
     interpolated = np.interp(np.arange(len(normalized)), np.arange(len(med))*window_size/2, med)
-    threshold = np.min(interpolated[int(max(0, onsets[0][0]-10000)):int(onsets[0][0])])*1.3
+    threshold = np.min(interpolated[int(max(0, onsets[0][0]-10000)):int(onsets[0][0])])*1.01
 
     if (plot):
         plt.plot(normalized, color='b')
@@ -335,7 +335,7 @@ def main(audiofile, tempo, timeSignature, debug=False):
         x = np.average(x, axis=1)
 
     #onsets = findPianoOnsets(x,Fs, True)
-    onsets = findViolinOnsets(x,Fs)
+    onsets = findViolinOnsets(x,Fs, True)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
         if freqs[i][0]==None: continue
@@ -359,6 +359,23 @@ def main(audiofile, tempo, timeSignature, debug=False):
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
     noteDurList = list(filter(lambda x: x[1]>0, noteDurList))
+
+    start = 0
+    end = 0
+    foundFirst = False
+    foundLast = False
+    for i in range(0,len(noteDurList)):
+        (pitch,duration) = noteDurList[i]
+        if (not foundFirst) and (pitch!= -np.inf):
+            foundFirst = True
+            start = i
+            break
+    for i, (pitch, duration) in reversed(list(enumerate(noteDurList))):
+        if (not foundLast) and (pitch!= -np.inf):
+            foundLast = True
+            end = i
+            break
+    noteDurList = noteDurList[start:end+1]
     #print(convertToString(noteDurList, "4/4"))
     return noteDurList
     #player =  convertToString(noteDurList, timeSignature)
