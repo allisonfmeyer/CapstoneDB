@@ -327,15 +327,15 @@ def identifyIncorrect(L, s):
 
 # returns a list of tuples in the form (Piano Key Number, duration)
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
-def main(audiofile, tempo, timeSignature, debug=False):
+def main(audiofile, tempo, timeSignature, instrument, debug=False):
     x, Fs = sf.read(audiofile)
 
     # remember to check for multi channel audio files
     if (x.ndim>1):
         x = np.average(x, axis=1)
 
-    #onsets = findPianoOnsets(x,Fs, True)
-    onsets = findViolinOnsets(x,Fs, True)
+    if (instrument=="piano"): onsets = findPianoOnsets(x,Fs, True)
+    elif (instrument=="violin"): onsets = findViolinOnsets(x,Fs, True)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
         if freqs[i][0]==None: continue
@@ -387,6 +387,7 @@ if __name__=="__main__":
     audiofile = sys.argv[1]
     timeSignature = sys.argv[2]
     tempo = int(sys.argv[3])
-    x = main(audiofile, tempo, timeSignature)
+    instrument = sys.argv[4]
+    x = main(audiofile, tempo, timeSignature, instrument)
     print(x)
 
