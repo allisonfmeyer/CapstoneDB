@@ -334,8 +334,8 @@ def main(audiofile, tempo, timeSignature, instrument, debug=False):
     if (x.ndim>1):
         x = np.average(x, axis=1)
 
-    if (instrument=="piano"): onsets = findPianoOnsets(x,Fs, True)
-    elif (instrument=="violin"): onsets = findViolinOnsets(x,Fs, True)
+    if (instrument=="piano"): onsets = findPianoOnsets(x,Fs)
+    elif (instrument=="violin"): onsets = findViolinOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
         if freqs[i][0]==None: continue
