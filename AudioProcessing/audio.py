@@ -84,7 +84,7 @@ def findPianoOnsets(x, Fs, plot=False):
     filtered = filtered/np.max(filtered)
     # Shift signal by half the window size to line up with onset
     filtered = filtered[window_size//2:]
-    peaks, _ = signal.find_peaks(filtered, height=0.1, distance=round(window_size*1.5))
+    peaks, _ = signal.find_peaks(filtered, height=0.02, distance=round(window_size*1.5))
 
     if (plot):
         plt.plot(x)
