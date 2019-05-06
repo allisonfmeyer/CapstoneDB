@@ -255,6 +255,7 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
     return final_frequencies
 
 def convertToString(L, timeSignature, instrument, key):
+    print(key)
     accidentals = nm.keyMap[key]
     result = ""
     count = 0
@@ -267,6 +268,7 @@ def convertToString(L, timeSignature, instrument, key):
     measure = int(timeSignature[1]) 
     for (freq, duration) in L:
         num = int(duration)//2
+        if(num<=0): num = 1
         count += num
         # Map -inf to a rest
         if(freq == float("-inf")): note = "z"
@@ -302,8 +304,11 @@ def convertToString(L, timeSignature, instrument, key):
     result += "]n"
     return result
 
-def convertToPitches(s, small, key):
+def convertToPitches(s, small, key, instrument):
     accidentals = nm.keyMap[key]
+    if(instrument == "piano"):
+        mapping = nm.notePianoMap
+    else: mapping = nm.noteToViolin
     if(small == "1/4"): multiply = 2
     if s[-2:] == "]n": s = s[:-2]
     notes = s.split(" ")
@@ -319,11 +324,11 @@ def convertToPitches(s, small, key):
                 curNote = note[:-1]
             if(curNote[0] == "="):
                 #print(curNote[1:])
-                pitch = nm.notePianoMap[curNote[1:]]
+                pitch = mapping[curNote[1:]]
             else:
                 if(curNote.upper() in accidentals):
                     curNote = "^" + curNote
-                pitch = nm.notePianoMap[curNote]
+                pitch = mapping[curNote]
             l.append((pitch, int(duration)*multiply))
         else: 
             newsplit = note.split("|")
@@ -341,11 +346,11 @@ def convertToPitches(s, small, key):
                         curNote = note[:-1]
                     if(curNote[0] == "="):
                         #print(curNote[1:], "fails")
-                        pitch = nm.notePianoMap[curNote[1:]]
+                        pitch = mapping[curNote[1:]]
                     else:
                         if(curNote.upper() in accidentals):
                             curNote = "^" + curNote
-                        pitch = nm.notePianoMap[curNote]
+                        pitch = mapping[curNote]
                     l.append((pitch, int(duration)*multiply))
     return l
 
@@ -353,9 +358,9 @@ def convertToPitches(s, small, key):
 
 def findNoteinS(src, s):
     num = 0
-    cur_line = 1
-    cur_measure = 1
-    cur_note = 1
+    cur_line = 0
+    cur_measure = 0
+    cur_note = 0
     for c in s:
         if(num == src):
             return '.abcjs-v1'+'.abcjs-l'+str(cur_line)+'.abcjs-m'+str(cur_measure)+'.abcjs-n'+str(cur_note)
@@ -367,11 +372,11 @@ def findNoteinS(src, s):
             continue
         elif(c == "|"):
             cur_measure += 1
-            cur_note = 0
+            cur_note = -1
         elif(c == "n"):
             cur_line += 1
-            cur_measure = 1
-            cur_note = 0
+            cur_measure = -1
+            cur_note = -1
         else:
             num += 1
             cur_note += 1
@@ -386,6 +391,8 @@ def identifyIncorrect(L, s):
         result.append(findNoteinS(src, s))
     return result
 
+
+
 # bleep  = [17, [('sub', 5, 5), ('sub', 6, 6), ('sub', 7, 7), ('sub', 10, 10),
 #  ('sub', 11, 11), ('ins', 11, 12), ('sub', 19, 20), ('sub', 20, 21),
 #   ('sub', 21, 22), ('sub', 25, 26), ('sub', 26, 27), ('sub', 27, 28), 
@@ -394,12 +401,11 @@ def identifyIncorrect(L, s):
 
 #A1 = "D2 D2 A2 A2|=c2 =c2 A3 G2|G2 =F2 F2 F2|E2 E2 D4|n A2 A2 G2 G2|F2 F2 E3 A2|A2 G2 F2 F2|F5 D2 D2|n A2 A2 B2 B2|A4 G2 G2|F2 F4 E2|=C]n"
 
-#print(identifyIncorrect(bleep, A1))
 
 
 # returns a list of tuples in the form (Piano Key Number, duration)
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
-def main(audiofile, tempo, timeSignature, xml, instrument, debug=False):
+def main(audiofile, tempo, timeSignature, xml, instrument, keyM, small, debug=False):
     x, Fs = sf.read(audiofile)
 
     # remember to check for multi channel audio files
@@ -450,9 +456,10 @@ def main(audiofile, tempo, timeSignature, xml, instrument, debug=False):
     noteDurList = noteDurList[start:end+1]
     #print(convertToString(noteDurList, "4/4"))
     #return noteDurList
-    player = convertToString(noteDurList, timeSignature, instrument, "Dmaj")
-    xmlNotes = convertToPitches(xml, "1/4", "Dmaj")
+    player = convertToString(noteDurList, timeSignature, instrument, keyM)
+    xmlNotes = convertToPitches(xml, small, keyM, instrument)
     incorrect = v.iterative_levenshtein(xmlNotes, noteDurList)
+    print(incorrect)
     print(identifyIncorrect(incorrect, player))
     return (player, identifyIncorrect(incorrect, player))
 
