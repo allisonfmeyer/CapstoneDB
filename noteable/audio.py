@@ -254,9 +254,11 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
             print("-----")
     return final_frequencies
 
-def convertToString(L, timeSignature, instrument, key):
-    print(key)
+def convertToString(L, timeSignature, instrument, key, small):
     accidentals = nm.keyMap[key]
+    if(small == "1/8"): val = 1
+    if(small == "1/4"): val = 2
+    if(small == "1/2"): val = 4
     result = ""
     count = 0
     measureCount = 0
@@ -267,7 +269,7 @@ def convertToString(L, timeSignature, instrument, key):
     beats = int(timeSignature[0])
     measure = int(timeSignature[1]) 
     for (freq, duration) in L:
-        num = int(duration)//2
+        num = int(duration)//val
         if(num<=0): num = 1
         count += num
         # Map -inf to a rest
@@ -310,6 +312,8 @@ def convertToPitches(s, small, key, instrument):
         mapping = nm.notePianoMap
     else: mapping = nm.noteToViolin
     if(small == "1/4"): multiply = 2
+    if(small == "1/8"): multiply = 1
+    if(small == "1/2"): multiply = 4
     if s[-2:] == "]n": s = s[:-2]
     notes = s.split(" ")
     l = list()
@@ -456,7 +460,7 @@ def main(audiofile, tempo, timeSignature, xml, instrument, keyM, small, debug=Fa
     noteDurList = noteDurList[start:end+1]
     #print(convertToString(noteDurList, "4/4"))
     #return noteDurList
-    player = convertToString(noteDurList, timeSignature, instrument, keyM)
+    player = convertToString(noteDurList, timeSignature, instrument, keyM, small)
     xmlNotes = convertToPitches(xml, small, keyM, instrument)
     incorrect = v.iterative_levenshtein(xmlNotes, noteDurList)
     print(incorrect)
