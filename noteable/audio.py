@@ -5,21 +5,24 @@ import sys
 import math
 import matplotlib.pyplot as plt
 import noteable.noteMapping as nm
-#import noteMapping as nm
 import noteable.verification as v
 
 pianoNoteMap = {42:"D", 44: "E", 46: "F", 47: "G", 49: "A", 50: "_B", 51: "B",
                 59: "G", 58: "F", 56:"E"}
 
 
-def findRests(x, Fs, plot=False):
+def findRests(x, Fs, onsets, plot=False):
     # Rest Detection
     normalized = np.abs(x)/np.max(np.abs(x))
-    threshold = 0.04
-    if (plot):
-        plt.plot(normalized, ',')
-        plt.axhline(threshold, color='r')
-        plt.show()
+
+    window_size=500
+    f, t, Zxx = signal.stft(normalized, fs=Fs, nperseg = window_size)
+    (r,c) = Zxx.shape
+    E = [0 for i in range(0,c)]
+    for i in range(0,c):
+        E[i] = np.sum(np.arange(r)*np.abs(Zxx[:, i])/r)
+    med = signal.medfilt(E, 11)
+    med = med/np.max(med)
 
     ma_window = 100
     ma = signal.fftconvolve(normalized, np.ones(ma_window)/ma_window)
@@ -29,11 +32,15 @@ def findRests(x, Fs, plot=False):
     b, a = signal.butter(5, w, 'low')
     output = 2*signal.filtfilt(b, a, normalized)
 
+    interpolated = np.interp(np.arange(len(normalized)), np.arange(len(med))*window_size/2, med)
+    threshold = np.min(interpolated[int(max(0, onsets[0][0]-10000)):int(onsets[0][0])])*1.01
+
     if (plot):
         plt.plot(normalized, color='b')
-        plt.plot(output, color='k')
+        plt.plot(interpolated, color='k')
         plt.axhline(threshold, color='r')
-    indicies = np.where(output<threshold)[0]
+        plt.show()
+    indicies = np.where(interpolated<=threshold)[0]
 
     rests = []
     if len(indicies)>0:
@@ -46,7 +53,7 @@ def findRests(x, Fs, plot=False):
         rests.append((int(start), int(indicies[-1])))
 
     new_rests = []
-    if len(rests[0])>0:
+    if (len(rests)>0) and len(rests[0])>0:
         first =  rests[0][0]
         (LL,RR) = rests[0]
         for i in range(0,len(rests)-1):
@@ -77,7 +84,7 @@ def findPianoOnsets(x, Fs, plot=False):
     filtered = filtered/np.max(filtered)
     # Shift signal by half the window size to line up with onset
     filtered = filtered[window_size//2:]
-    peaks, _ = signal.find_peaks(filtered, height=0.1, distance=round(window_size*1.5))
+    peaks, _ = signal.find_peaks(filtered, height=0.02, distance=round(window_size*1.5))
 
     if (plot):
         plt.plot(x)
@@ -86,7 +93,7 @@ def findPianoOnsets(x, Fs, plot=False):
         plt.show()
 
     peaks = list(zip(peaks,[False]*len(peaks)))
-    rests = findRests(x,Fs,plot)
+    rests = findRests(x,Fs, peaks, plot)
     onsets = sorted(peaks+rests, key=lambda x: x[0])
     '''
     plt.plot(x)
@@ -131,15 +138,15 @@ def findViolinOnsets(x, Fs, plot=False):
             minima.append(peaks[i-1]+indicies[0][-1])
 
     peaks = [minima[i]*window_size/2 for i in range(0,len(minima))]
+    peaks = list(zip(peaks,[False]*len(peaks)))
     if (plot):
         plt.plot(x)
         for peak in peaks:
-            plt.axvline(peak,color='r')
+            plt.axvline(peak[0],color='r')
         plt.show()
-    rests = findRests(x,Fs,plot)
+    rests = findRests(x,Fs, peaks, plot)
     # Make sure onsets and rests don't start at the same time
     rests = list(filter(lambda x: x[0] not in peaks, rests))
-    peaks = list(zip(peaks,[False]*len(peaks)))
     onsets = sorted(peaks+rests, key=lambda x: x[0])
     '''
     plt.plot(x)
@@ -247,24 +254,36 @@ def removeHarmonics(freqs,amps, spectrum, Fs, debug=False):
             print("-----")
     return final_frequencies
 
-def convertToString(L, timeSignature):
+def convertToString(L, timeSignature, instrument, key):
+    accidentals = nm.keyMap[key]
     result = ""
     count = 0
     measureCount = 0
+    if(instrument == "piano"):
+        noteMapping = nm.pianoNoteMap
+    else: noteMapping = nm.violnNoteMap
     timeSignature = timeSignature.split("/")
     beats = int(timeSignature[0])
-    measure = int(timeSignature[1])
+    measure = int(timeSignature[1]) 
     for (freq, duration) in L:
-        num = duration//2
+        num = int(duration)//2
         count += num
         # Map -inf to a rest
         if(freq == float("-inf")): note = "z"
-        else:
-            if(int(freq) not in nm.freqToNote): 
+        else: 
+            if(int(freq) in noteMapping):
+                note = noteMapping[int(freq)]
+            else:
                 note = "z"
-            else: 
-                note = nm.freqToNote[int(freq)]
-        if(count == beats):
+        if(len(note)>1):
+            #print(note)
+            if(note[1:] in accidentals):
+                note = note[1:]
+        else:
+            if(note.upper() in accidentals):
+                #print(note)
+                note = "=" + note
+        if(count >= beats):
             measureCount += 1
             if(num != 1):
                 result = result + note + str(int(num)) + "|"
@@ -283,12 +302,60 @@ def convertToString(L, timeSignature):
     result += "]n"
     return result
 
+def convertToPitches(s, small, key):
+    accidentals = nm.keyMap[key]
+    if(small == "1/4"): multiply = 2
+    if s[-2:] == "]n": s = s[:-2]
+    notes = s.split(" ")
+    l = list()
+    for note in notes:
+        if("|" not in note):
+            if(note == "n" or note == ""): continue 
+            if(not note[-1:].isdigit()): 
+                duration = 1
+                curNote = note
+            else:
+                duration = note[-1:]
+                curNote = note[:-1]
+            if(curNote[0] == "="):
+                #print(curNote[1:])
+                pitch = nm.notePianoMap[curNote[1:]]
+            else:
+                if(curNote.upper() in accidentals):
+                    curNote = "^" + curNote
+                pitch = nm.notePianoMap[curNote]
+            l.append((pitch, int(duration)*multiply))
+        else: 
+            newsplit = note.split("|")
+            for note in newsplit:
+                #print(note)
+                if(note == "n"):
+                    continue
+                if(note == ""): continue
+                else:
+                    if(not note[-1:].isdigit()):   
+                        duration = 1
+                        curNote = note
+                    else: 
+                        duration = note[-1:]
+                        curNote = note[:-1]
+                    if(curNote[0] == "="):
+                        #print(curNote[1:], "fails")
+                        pitch = nm.notePianoMap[curNote[1:]]
+                    else:
+                        if(curNote.upper() in accidentals):
+                            curNote = "^" + curNote
+                        pitch = nm.notePianoMap[curNote]
+                    l.append((pitch, int(duration)*multiply))
+    return l
+
+
 
 def findNoteinS(src, s):
     num = 0
     cur_line = 1
     cur_measure = 1
-    cur_note = 0
+    cur_note = 1
     for c in s:
         if(num == src):
             return '.abcjs-v1'+'.abcjs-l'+str(cur_line)+'.abcjs-m'+str(cur_measure)+'.abcjs-n'+str(cur_note)
@@ -296,14 +363,16 @@ def findNoteinS(src, s):
             continue
         elif(c.isdigit()):
             continue
+        elif(c == "^" or c == "_" or c == "="):
+            continue
         elif(c == "|"):
             cur_measure += 1
-            cur_note = 1
+            cur_note = 0
         elif(c == "n"):
             cur_line += 1
             cur_measure = 1
-            cur_note = 1
-        else: 
+            cur_note = 0
+        else:
             num += 1
             cur_note += 1
     return ""
@@ -313,26 +382,32 @@ def identifyIncorrect(L, s):
     incorrectTuple = L[1]
     result = list()
     for (op, src, dest) in incorrectTuple:
-        print(src)
+        #print(src, findNoteinS(src, s))
         result.append(findNoteinS(src, s))
     return result
 
-#s = "D D A A|B B A2|G G F F|E E D2|n A A G G|F F E2|A A G G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
-#print(identifyIncorrect([3, [('sub', 1, 1), ('ins', 1, 2), ('sub', 3, 4)]], s))
+# bleep  = [17, [('sub', 5, 5), ('sub', 6, 6), ('sub', 7, 7), ('sub', 10, 10),
+#  ('sub', 11, 11), ('ins', 11, 12), ('sub', 19, 20), ('sub', 20, 21),
+#   ('sub', 21, 22), ('sub', 25, 26), ('sub', 26, 27), ('sub', 27, 28), 
+#   ('del', 28, 28), ('sub', 38, 38), ('sub', 39, 39), ('sub', 41, 41), ('del', 42, 41)]]
 
-#print(convertToString([(float("-inf"), 9.0), (53.0, 1.0), (53.0, 1.0), (53.0, 2.0), (51.0, 3.0), (49.0, 2.0), (49.0, 2.0)], "4/4"))
+
+#A1 = "D2 D2 A2 A2|=c2 =c2 A3 G2|G2 =F2 F2 F2|E2 E2 D4|n A2 A2 G2 G2|F2 F2 E3 A2|A2 G2 F2 F2|F5 D2 D2|n A2 A2 B2 B2|A4 G2 G2|F2 F4 E2|=C]n"
+
+#print(identifyIncorrect(bleep, A1))
+
 
 # returns a list of tuples in the form (Piano Key Number, duration)
 # where duration is the length in eight notes (ie 2 would mean a quarter note)
-def main(audiofile, tempo, timeSignature, xml, debug=False):
+def main(audiofile, tempo, timeSignature, xml, instrument, debug=False):
     x, Fs = sf.read(audiofile)
 
     # remember to check for multi channel audio files
     if (x.ndim>1):
         x = np.average(x, axis=1)
 
-    #onsets = findPianoOnsets(x,Fs)
-    onsets = findViolinOnsets(x,Fs)
+    if (instrument=="piano"): onsets = findPianoOnsets(x,Fs)
+    elif (instrument=="violin"): onsets = findViolinOnsets(x,Fs)
     freqs, amps, spectrum = findFrequencies(onsets,x, Fs)
     for i in range(0,len(freqs)):
         if freqs[i][0]==None: continue
@@ -356,17 +431,36 @@ def main(audiofile, tempo, timeSignature, xml, debug=False):
         print(durations)
     noteDurList = list(zip(keynotes.tolist(), durations.tolist()))
     noteDurList = list(filter(lambda x: x[1]>0, noteDurList))
+
+    start = 0
+    end = 0
+    foundFirst = False
+    foundLast = False
+    for i in range(0,len(noteDurList)):
+        (pitch,duration) = noteDurList[i]
+        if (not foundFirst) and (pitch!= -np.inf):
+            foundFirst = True
+            start = i
+            break
+    for i, (pitch, duration) in reversed(list(enumerate(noteDurList))):
+        if (not foundLast) and (pitch!= -np.inf):
+            foundLast = True
+            end = i
+            break
+    noteDurList = noteDurList[start:end+1]
     #print(convertToString(noteDurList, "4/4"))
     #return noteDurList
-    player =  convertToString(noteDurList, timeSignature)
-    #xml = ??
-    incorrect = v.iterative_levenshtein(xml, player)
+    player = convertToString(noteDurList, timeSignature, instrument, "Dmaj")
+    xmlNotes = convertToPitches(xml, "1/4", "Dmaj")
+    incorrect = v.iterative_levenshtein(xmlNotes, noteDurList)
+    print(identifyIncorrect(incorrect, player))
     return (player, identifyIncorrect(incorrect, player))
 
 if __name__=="__main__":
     audiofile = sys.argv[1]
     timeSignature = sys.argv[2]
     tempo = int(sys.argv[3])
-    x = main(audiofile, tempo, timeSignature)
+    instrument = sys.argv[4]
+    x = main(audiofile, tempo, timeSignature, instrument)
     print(x)
 
