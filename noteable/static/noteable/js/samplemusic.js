@@ -44,3 +44,7 @@ function makeABCString(title, time_sig, length, key, song) {
   console.log(t + m + l + r + stave + v1 + v2 + k + s)
   return (t + m + l + r + stave + v1 + v2 + k + s);
 }
+
+function setText(song) {
+  document.getElementById("songText").value = song;
+}

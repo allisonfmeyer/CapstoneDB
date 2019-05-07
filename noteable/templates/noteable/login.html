@@ -16,6 +16,7 @@
 
   <!-- Custom styles for this template -->
   <link href="{% static 'noteable/css/full-width-pics.css' %}" rel="stylesheet">
+  <link href="{% static 'noteable/css/logged_home.css' %}" rel="stylesheet">
 
 </head>
 
@@ -34,8 +35,12 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'register' %}">Register
+            <a class="nav-link" href="/">Home
               <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Register
             </a>
           </li>
         </ul>
@@ -49,7 +54,20 @@
   </header>
 
   <!-- Content section -->
-  
+  <section class="py-5">
+    <span class="anchor" id=""></span>
+    <div class="container" id="loginDiv">
+      <form method="post" action="{% url 'login' %}">
+        <table align="center">
+            {{form}}
+        </table>
+        {% csrf_token %}
+        <br><button class="button redButton" align="center" type="submit">Login</button>
+      </form>
+      <br>Don't have an account? <a href="{% url 'register' %}" style="color:red">Click here to register.</a>
+    </div>
+  </section>
+
 
   <!-- Footer -->
   <footer class="py-5 bg-dark" id="footer">

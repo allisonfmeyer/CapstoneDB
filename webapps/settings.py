@@ -43,6 +43,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "webapps.urls"
 
+LOGIN_URL = '/noteable/login'
+
+LOGIN_REDIRECT_URL = '/noteable/'
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -85,7 +89,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
     },
 ]
-
 
 LANGUAGE_CODE = "en-us"
 

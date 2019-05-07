@@ -48,7 +48,7 @@
             <a class="nav-link" href="#contactUs">Contact Us</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logged_home_init' %}"><span class="glyphicon glyphicon-log-in"></span> Get Playing!</a>
+            <a class="nav-link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Get Playing!</a>
           </li>
         </ul>
       </div>
@@ -148,7 +148,7 @@
       <p class="lead"></p>
       <div class="question">1. Is the practice tool free?</div>
       <div class="answer"><i>Yes! Access to the practice tool as well as our library of 
-                             beginner violin music is free and accessible by simply <a href="{% url 'login' %}">
+                             beginner violin music is free and accessible by simply <a href="{% url 'register' %}">
                              registering for an account</a>.</i></div>
       <div class="question">2. How do I register for an account?</div>
       <div class="answer"><i><a href="{% url 'login' %}">Login here</a> if you have already created an account,
@@ -198,21 +198,9 @@
     <span class="anchor" id="contactUs"></span>
     <div class="container" id="ourTeam">
       <h1>Want to Contact Us?</h1>
-      <p class="lead"></p>Ask us a question; we don't bite!
-      <form method="post" action="{% url 'login' %}">
-        <table>
-            {% for field in form.visible_fields %}
-                <tr>
-                    <td>{{field.label_tag}}</td>
-                    <td>{{field}}</td>
-                    <td class="error">
-                        {% for error in field.errors %} {{error}} {% endfor %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-        {% csrf_token %}
-        <button id="id_send_email_button" type="submit">Send Message</button>
+      <p class="lead"></p><a href = "mailto:afmeyer@andrew.cmu.edu?subject=Inquiry about Noteable">
+        Email us a question; we don't bite!
+      </a>
     </form>
     </div>
   </section>

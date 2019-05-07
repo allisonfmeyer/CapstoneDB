@@ -78,12 +78,7 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'account' %}">My Account
-              <span class="sr-only">(current)</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}">Logout</a>
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
         </ul>
       </div>
@@ -111,7 +106,8 @@
       </div>
       <div class="col">
         Title: <input type="text" name="title" id="title_input"><br><br>
-        Tempo: <input type="number" name="tempo" min="20" max="120" value="100" id="tempo_input"><br><br>
+        Tempo: <input type="number" name="tempo" min="20" max="120" value="100" id="tempo_input"><br>
+        <br>
         <div id="controls">
           <button id="recordButton">Record</button>
           <button id="pauseButton" disabled>Pause</button>
@@ -127,9 +123,11 @@
     </div>
   </div>
   <div class="flex-container">
-    <br><div id="latestRec">Latest Recording: <a href="{{ record.recording.url }}">{{ record.title }}</a></div> <div id="latestTempo"><small>(Tempo: {{ record.tempo }})</small></div> <div id="button_id"><a class="btn btn-outline-secondary btn-sm" onclick="location.href='{% url 'results' %}'">Results</a></div>
+    <br><div id="latestRec">Latest Recording: <a href="{{ record.recording.url }}">{{ record.title }}</a></div> <div id="latestTempo"><small>(Tempo: {{ record.tempo }})</small></div> <div id="button_id"><a class="btn btn-outline-secondary btn-sm" onclick="getPianoResults()">Piano Results</a></div><div id="button_id"><a class="btn btn-outline-secondary btn-sm" onclick="getViolinResults()">Violin Results</a></div>
   </div>
-  
+  <br><div id="prog">
+    
+  </div>
   <div class="container" id="notation" align="center"></div>
   </section>
 

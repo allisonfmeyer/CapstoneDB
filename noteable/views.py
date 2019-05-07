@@ -10,27 +10,14 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from noteable.forms import LoginForm, RegistrationForm, RecordForm, SheetForm
-from noteable.models import Record, ABCSong, Sheet
+from noteable.models import Record, ABCSong, Sheet, Profile
 from noteable.audio import main
 import os, subprocess
 from subprocess import PIPE
 
-# NOT USING YET
-'''
-def upload(request):
- 
-    customHeader = request.META['HTTP_MYCUSTOMHEADER']
- 
-    # obviously handle correct naming of the file and place it somewhere like media/uploads/
-    uploadedFile = open("recording.ogg", "wb")
-    # the actual file is in request.body
-    uploadedFile.write(request.body)
-    uploadedFile.close()
-    # put additional logic like creating a model instance or something like this here
-    return HttpResponse(escape(repr(request)))
-'''    
+
 def home_page_action(request):
-	return render(request, 'noteable/home.html', {})
+    return render(request, 'noteable/home.html', {})
 
 def login_action(request):
     context = {}
@@ -51,17 +38,17 @@ def login_action(request):
 
     new_user = authenticate(username=form.cleaned_data['username'],
                             password=form.cleaned_data['password'])
-
+    
     login(request, new_user)
-    return redirect(reverse('home'))
+    return redirect(reverse('logged_home_init'))
 
 def logout_action(request):
     logout(request)
-    return redirect(reverse('login'))
+    return redirect(reverse('home'))
 
 def register_action(request):
     context = {}
-
+    print("in register")
     # Just display the registration form if this is a GET request.
     if request.method == 'GET':
         context['form'] = RegistrationForm()
@@ -82,14 +69,15 @@ def register_action(request):
                                         email=form.cleaned_data['email'],
                                         first_name=form.cleaned_data['first_name'],
                                         last_name=form.cleaned_data['last_name'])
-    
     new_user.save()
 
     new_user = authenticate(username=form.cleaned_data['username'],
                             password=form.cleaned_data['password1'])
-
+    profile = Profile(user=new_user)
+    profile.save()
     login(request, new_user)
-    return redirect(reverse('home'))
+
+    return redirect(reverse('logged_home_init'))
 
 # Hard coded model object for the sample song 'Twinkle Twinkle Little Star'
 def twinkleModel():
@@ -124,28 +112,28 @@ def songOfTheWindModel():
 '''
   This function takes in string output from existing xml2abc and parses into an ABCSong model
 '''
-def make_model(result):
+def make_modelFromUpload(result):
     result = str(result)
     model = ABCSong()
     # Parse title
     title = result.split("T:")[1]
-    title = title.split("L:")[0]
-    title = title[:-4]
+    title = title.split(":")[0]
+    title = title[:-5]
     model.title = title
     # Parse time sig
     time_sig = result.split("M:")[1]
-    time_sig = time_sig.split("K:")[0]
-    time_sig = time_sig[:-4]
+    time_sig = time_sig.split(":")[0]
+    time_sig = time_sig[:-5]
     model.time_sig = time_sig
     # Parse note length
     length = result.split("L:")[1]
-    length = length.split("M:")[0]
-    length = length[:-4]
+    length = length.split(":")[0]
+    length = length[:-5]
     model.length = length
     # Parse key
     key = result.split("K:")[1]
     key = key.split(" ",1)[0]
-    key = key[:-4]
+    key = key[:-5]
     model.key = key
     # Parse song
     song = result.split("K:")[1]
@@ -157,6 +145,49 @@ def make_model(result):
         index2 = song.index("n")
         song = song[:index1] + song[index2+1:]
     song = song.replace('$','n')
+    song = song.replace("\n", "n").replace('\r', '');
+    song += "]n"
+    model.song = song
+    model.save()
+    return model
+
+'''
+  This function takes in string output from existing xml2abc and parses into an ABCSong model
+'''
+def make_modelFromEdit(result):
+    result = str(result)
+    model = ABCSong()
+    # Parse title
+    title = result.split("T: ")[1]
+    title = title.split(":")[0]
+    title = title[:-3]
+    model.title = title
+    # Parse time sig
+    time_sig = result.split("M: ")[1]
+    time_sig = time_sig.split(":")[0]
+    time_sig = time_sig[:-3]
+    model.time_sig = time_sig
+    # Parse note length
+    length = result.split("L: ")[1]
+    length = length.split(":")[0]
+    length = length[:-3]
+    model.length = length
+    # Parse key
+    key = result.split("K: ")[1]
+    key = key.split(" ",1)[0]
+    key = key[:-3]
+    model.key = key
+    # Parse song
+    song = result.split("K: ")[1]
+    song = song.split("\r\n",1)[1]
+    song = song.split("]")[0]
+    percents = True
+    while ('%' in song):
+        index1 = song.index("%")
+        index2 = song.index("n")
+        song = song[:index1] + song[index2+1:]
+    song = song.replace('$','n')
+    song = song.replace("\n", "n").replace('\r', '');
     song += "]n"
     model.song = song
     model.save()
@@ -166,7 +197,10 @@ def make_model(result):
   This function is solely called to render the initial logged in page, before
   a user has selected a song to play.
 '''
+@login_required
 def logged_home_action_init(request):
+    profile = Profile.objects.filter(user=request.user).latest('savedMusic')
+    user = profile.user
     if request.method == 'POST':
         form = SheetForm(request.POST, request.FILES)
         if form.is_valid():
@@ -179,18 +213,26 @@ def logged_home_action_init(request):
             pdf_name = str(pdf).split("sheets/")[1]
             pdf_name = pdf_name.split(".")[0]
             result = subprocess.check_output('python noteable/xml2abc.py [-h] [-u] [-m] [-c C] [-d D] [-v V] [-n CPL] [-b BPL] [-o DIR] [-x] [-p FMT] [-t] [-s] media/mxl/'+pdf_name+'/'+pdf_name+'.mxl', shell=True)
-            result_model = make_model(result)
-            return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm(), 'model': result_model })
+            result_model = make_modelFromUpload(result)
+            profile.savedMusic.add(result_model)
+            profile.save()
+            models = profile.savedMusic.filter()
+            return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm(), 'models': models, 'user': user })
     else:
         form = SheetForm()
-    return render(request, 'noteable/logged_home_init.html', { 'form': form })
+        models = profile.savedMusic.filter()
+    return render(request, 'noteable/logged_home_init.html', { 'form': form, 'user': user, 'models': models })
 
 '''
   This function is called every time a different song is selected but before a user
   has decided to begin recording. The chosen song is passed in as a parameter, initializing
   the flow of selected song data between views.
 '''
+@login_required
 def logged_home_action(request, chosen_song):
+    #print("chosen song: "+chosen_song)
+    profile = Profile.objects.filter(user=request.user).latest('savedMusic')
+    user = profile.user
     result_model = ''
     # Uploading new song
     if request.method == 'POST':
@@ -205,23 +247,21 @@ def logged_home_action(request, chosen_song):
             pdf_name = str(pdf).split("sheets/")[1]
             pdf_name = pdf_name.split(".")[0]
             result = subprocess.check_output('python noteable/xml2abc.py [-h] [-u] [-m] [-c C] [-d D] [-v V] [-n CPL] [-b BPL] [-o DIR] [-x] [-p FMT] [-t] [-s] media/mxl/'+pdf_name+'/'+pdf_name+'.mxl', shell=True)
-            result_model = make_model(result)
-            #return render(request, 'noteable/logged_home_init.html', { 'form': SheetForm(), 'model': result_model })
+            result_model = make_modelFromUpload(result)
+            profile.savedMusic.add(result_model)
+            profile.save()
 
+    models = profile.savedMusic.filter()
     hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
     if (chosen_song in hard_songs):
         song = getSongObject(chosen_song)
         # Set session parameter to song once song is selected to access in other views
         request.session['song'] = chosen_song
-        if (result_model != ''):
-            return render(request, 'noteable/logged_home.html', { 'song': song, 'form': SheetForm(), 'model': result_model })
-        return render(request, 'noteable/logged_home.html', { 'song': song, 'form': SheetForm() })
+        return render(request, 'noteable/logged_home.html', { 'song': song, 'form': SheetForm(), 'user': user, 'models': models })
     else:
-        song = ABCSong.objects.latest('id')
-        request.session['song'] = 'uploaded'
-    if (result_model != ''):
-        return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True, 'form': SheetForm(), 'model': result_model })
-    return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True, 'form': SheetForm() })
+        song = profile.savedMusic.all().filter(title=chosen_song).latest('song')
+        request.session['song'] = chosen_song
+    return render(request, 'noteable/logged_home.html', { 'song': song, 'chosen_song': True, 'form': SheetForm(), 'user':user, 'models': models })
 
 '''
   This function takes a string of the song name and returns
@@ -257,18 +297,67 @@ def upload(request):
     response_text = serializers.serialize('json', [latest, url])
     return HttpResponse(response_text, content_type='application/json')
 
-'''
-  This function renders the play url page. It retrieves the chosen song by calling
-  the session parameter, then either loads a blank form or saves a posted form
-  to the db containing an uploaded song model.
-'''
-def play_action(request):
+@login_required
+def edit_action(request):
+    profile = Profile.objects.filter(user=request.user).latest('savedMusic')
     song = request.session.get('song', None)
     hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
     if (song in hard_songs):
         song = getSongObject(song)
     else:
-        song = ABCSong.objects.latest('id')
+        song = profile.savedMusic.all().filter(title=song).latest('song')
+        #song = ABCSong.objects.latest('id')
+    if request.method == "POST":
+        # Save edited song as ABCSong object and redirect to play page
+        if ('clickedRecord' in request.POST):
+            songString = request.POST['editedSong']
+            make_modelFromEdit(songString);
+            return redirect('play')
+        # Save edited song as ABCSong object and go back to logged_home
+        elif ('clickedSave' in request.POST):
+            songString = request.POST['editedSong']
+            newSong = make_modelFromEdit(songString);
+            print('testing')
+            print(newSong.title)
+            print(newSong.length)
+            print(newSong.song)
+            newSong.key="Cmaj"
+            print(newSong.key)
+            newSong.save()
+            # Don't overwrite sample songs, just add a new entry
+            songName = request.session.get('song',None)
+            if (songName in hard_songs):
+                orig = getSongObject(songName)
+                orig.song = newSong.song
+                orig.save()
+                profile.savedMusic.add(orig)
+                profile.save()
+            else:
+                for oldSong in profile.savedMusic.all():
+                    if oldSong.title == songName:
+                        profile.savedMusic.remove(oldSong)
+                profile.savedMusic.add(newSong)
+                profile.save()
+            request.session['song'] = newSong.title
+            return redirect('logged_home', newSong.title)
+
+    return render(request, 'noteable/edit.html', { 'song': song })
+
+'''
+  This function renders the play url page. It retrieves the chosen song by calling
+  the session parameter, then either loads a blank form or saves a posted form
+  to the db containing an uploaded song model.
+'''
+@login_required
+def play_action(request):
+    profile = Profile.objects.filter(user=request.user).latest('savedMusic')
+    song = request.session.get('song', None)
+    hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
+    if (song in hard_songs):
+        song = getSongObject(song)
+    else:
+        song = profile.savedMusic.all().filter(title=song).latest('song')
+        #song = ABCSong.objects.latest('id')
     if request.method == 'POST':
         form = RecordForm(request.POST, request.FILES)
         if form.is_valid():
@@ -373,12 +462,10 @@ def percentage(song, wrong_classes):
     song = song.replace("=", "")
     # Strips all digits
     song = ''.join([i for i in song if not i.isdigit()])
-    # Count number of chords
-    num_chords = song.count("[")
     # Strip chord and end of song indicator
     song = song.replace("[", "")
     song = song.replace("]", "")
-    total_notes = len(song) - num_chords
+    total_notes = len(song)
     return round(100*(1-len(wrong_classes)/total_notes))
 
 '''
@@ -387,35 +474,79 @@ def percentage(song, wrong_classes):
   string that can be sent to be displayed in js, and assigns necessary color
   according to percent correctness.
 '''
+@login_required
 def results_action(request):
+    profile = Profile.objects.filter(user=request.user).latest('savedMusic')
     hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
     song = request.session.get('song', None)
     if (song in hard_songs):
         sheet_song = getSongObject(song)
     else:
-        sheet_song = ABCSong.objects.latest('id')
+        sheet_song = profile.savedMusic.all().filter(title=song).latest('song')
+        print('results')
+        print(sheet_song.title)
+        print(sheet_song.length)
+        print(sheet_song.key)
+        print(sheet_song.song)
+        #sheet_song = ABCSong.objects.latest('id')
 
     #sheet_song = getSongObject(request.session.get('song', None))
     record = Record.objects.latest('uploaded_at')
     #audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
-    (audio_song, wrong_classes) = main(record.recording, record.tempo, sheet_song.time_sig, sheet_song.song, debug=False)
-    
+    (audio_song, wrong_classes) = main(record.recording, record.tempo, sheet_song.time_sig, sheet_song.song, "piano", sheet_song.key, sheet_song.length, debug=False)
+    print("wrong")
+    print(wrong_classes)
     #Examples for demo!
     # 8 wrong notes (ok)
     #audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
     #13 wrong notes (bad)
-    #audio_song = "D D A A|B B A2|G G F F|E E D2|n A A G G|F F E2|A A G G|F F E2|n F F c c|d d c2|B B A A|G G D2|]n"
+    #audio_song = "D F A A|B B B2|D G F F|E E D2|n a a G G|F F E2|B A G G|F F G2|n D D c c|B B c2|G G F F|E E D2|]n"
 
     # Update song to include any discrepencies between recording and sheet music as chords
-    (result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
+    #(result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
     sheet_song.song = "[V: OrigPiece] " + sheet_song.song + " [V: PlayedPiece] " + audio_song
     print(sheet_song.song)
-
-    perc = percentage(result_song, wrong_classes)
+    perc = percentage(audio_song, wrong_classes)
     perc_color = percentage_color(perc)
     return render(request, 'noteable/results.html', 
         { 'record': record, 'result_song': sheet_song, 'percentage': perc, 'perc_color': perc_color, 
         'classes': wrong_classes })
 
+@login_required
+def results_action_violin(request):
+    profile = Profile.objects.filter(user=request.user).latest('savedMusic')
+    hard_songs = ['twinkle', 'lightlyRow', 'songOfTheWind']
+    song = request.session.get('song', None)
+    if (song in hard_songs):
+        sheet_song = getSongObject(song)
+    else:
+        sheet_song = profile.savedMusic.all().filter(title=song).latest('song')
+        #sheet_song = ABCSong.objects.latest('id')
+
+    #sheet_song = getSongObject(request.session.get('song', None))
+    record = Record.objects.latest('uploaded_at')
+    #audio_song = main(record.recording, record.tempo, sheet_song.time_sig, debug=False)
+    (audio_song, wrong_classes) = main(record.recording, record.tempo, sheet_song.time_sig, sheet_song.song, "violin", sheet_song.key, sheet_song.length, debug=False)
+    print("wrong")
+    print(wrong_classes)
+    #Examples for demo!
+    # 8 wrong notes (ok)
+    #audio_song = "F F c c|B B c2|G G F F|G E D2|n A c G G|F F E2|A A B G|F F E2|n D D A A|B B A2|G G F F|E E D2|]n"
+    #13 wrong notes (bad)
+    #audio_song = "D F A A|B B B2|D G F F|E E D2|n a a G G|F F E2|B A G G|F F G2|n D D c c|B B c2|G G F F|E E D2|]n"
+
+    # Update song to include any discrepencies between recording and sheet music as chords
+    #(result_song, wrong_classes) = compareSongs(sheet_song.song, audio_song)
+    sheet_song.song = "[V: OrigPiece] " + sheet_song.song + " [V: PlayedPiece] " + audio_song
+    print(sheet_song.song)
+    perc = percentage(audio_song, wrong_classes)
+    perc_color = percentage_color(perc)
+    return render(request, 'noteable/results.html', 
+        { 'record': record, 'result_song': sheet_song, 'percentage': perc, 'perc_color': perc_color, 
+        'classes': wrong_classes })
+
+@login_required
 def account_action(request):
-    return render(request, 'noteable/account.html', {})
+    profile = Profile.objects.filter(user=request.user)[0]
+    user = profile.user
+    return render(request, 'noteable/account.html', { 'user': user })

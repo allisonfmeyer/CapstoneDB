@@ -115,3 +115,34 @@ function stopRecording() {
   window.clearInterval(timer);
   $(".counter .dot").attr("style", "");
 }
+
+function getPianoResults(){
+  document.location.href = 'results'
+  
+  var progElm = document.getElementById("prog");
+  progElm.innerHTML = "<input type='checkbox' id='water'/> <label for='water' id='waterLabel'><div id='fill'></div></label><span id='progress'>0%</span>"
+  var elm = document.querySelector('#progress');
+  setInterval(function(){
+    if(!elm.innerHTML.match(/100%/gi)){
+      elm.innerHTML = (parseInt(elm.innerHTML) + 1) + '%';
+    } else {
+      clearInterval();
+    }
+  }, 1800)
+  
+}
+
+function getViolinResults(){
+  document.location.href = 'results_violin'
+  var progElm = document.getElementById('prog');
+  progElm.innerHTML = "<input type='checkbox' id='water'/> <label for='water' id='waterLabel'><div id='fill'></div></label><span id='progress'>0%</span>"
+  var elm = document.querySelector('#progress');
+  setInterval(function(){
+    if(!elm.innerHTML.match(/100%/gi)){
+      elm.innerHTML = (parseInt(elm.innerHTML) + 1) + '%';
+    } else {
+      clearInterval();
+    }
+  }, 1800)
+  
+}

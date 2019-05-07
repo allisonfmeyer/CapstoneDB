@@ -1,0 +1,52 @@
+2019-05-01 01:21:54,193 INFO [twinkle_OlDzouI]                 Book.java:473  | 1 sheet in media\sheets\twinkle_OlDzouI.pdf
+2019-05-01 01:21:54,647 INFO []                 Book.java:1660 | Stored /book.xml
+2019-05-01 01:21:54,647 INFO []                 Book.java:1613 | Book stored as media\mxl\twinkle_OlDzouI\twinkle_OlDzouI.omr
+2019-05-01 01:21:54,687 INFO []                 Book.java:1327 | Book reaching PAGE on sheets:[#1]
+2019-05-01 01:21:54,693 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | LOAD
+2019-05-01 01:21:55,624 INFO [twinkle_OlDzouI]                 Book.java:1226 | Loaded image 1 2549x3299 from media\sheets\twinkle_OlDzouI.pdf
+2019-05-01 01:21:55,635 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | BINARY
+2019-05-01 01:21:56,941 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | SCALE
+2019-05-01 01:21:56,973 INFO [twinkle_OlDzouI]         ScaleBuilder.java:557  | Second combo peak too different (182,182,182), ignored
+2019-05-01 01:21:56,981 INFO [twinkle_OlDzouI]         ScaleBuilder.java:492  | Beam minHeight:5 maxHeight:17 quorum:689
+2019-05-01 01:21:56,985 INFO [twinkle_OlDzouI]         ScaleBuilder.java:235  | No beam key found, guessed value: 11
+2019-05-01 01:21:56,985 INFO [twinkle_OlDzouI]            ScaleStep.java:84   | Scale{line(1,1,2) interline(17,18,18) beam(11 extra)}
+2019-05-01 01:21:56,985 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | GRID
+2019-05-01 01:21:57,401 INFO [twinkle_OlDzouI]       LinesRetriever.java:447  | Global slope: 0.00000
+2019-05-01 01:21:57,457 INFO [twinkle_OlDzouI]    ClustersRetriever.java:235  | Retrieved line clusters: 3 of size: 5 with interline: interline(17,18,18)
+2019-05-01 01:21:57,614 INFO [twinkle_OlDzouI]            PeakGraph.java:177  | Systems: #1[1] #2[2] #3[3]
+2019-05-01 01:21:58,009 INFO [twinkle_OlDzouI]        SystemManager.java:731  | 1 part along 3 systems
+2019-05-01 01:21:58,014 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | HEADERS
+2019-05-01 01:21:58,466 INFO [twinkle_OlDzouI]      BasicClassifier.java:362  | Classifier loaded XML norms.
+2019-05-01 01:21:58,478 INFO [twinkle_OlDzouI]   AbstractClassifier.java:348  | Classifier data loaded from default uri file:///C:/Users/Ally/My%20Documents/Capstone/CapstoneDB/res/basic-classifier.zip
+2019-05-01 01:21:59,900 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | STEM_SEEDS
+2019-05-01 01:21:59,995 INFO [twinkle_OlDzouI]        StemSeedsStep.java:93   | stem(1 max:4)
+2019-05-01 01:22:00,059 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | BEAMS
+2019-05-01 01:22:07,502 INFO [twinkle_OlDzouI]       BlackHeadSizer.java:95   | Spots black-head retrieval diameter: 16.2
+2019-05-01 01:22:07,572 INFO [twinkle_OlDzouI]       BlackHeadSizer.java:243  | Core black head count: 16 blackHead(width:21.0~0.0 height:17.8~1.0)
+2019-05-01 01:22:07,576 INFO [twinkle_OlDzouI]       BlackHeadSizer.java:248  | MusicFont{name:MusicalSymbols pointSize:70}
+2019-05-01 01:22:07,657 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | LEDGERS
+2019-05-01 01:22:07,827 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | HEADS
+2019-05-01 01:22:09,842 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | STEMS
+2019-05-01 01:22:10,005 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | REDUCTION
+2019-05-01 01:22:10,063 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | CUE_BEAMS
+2019-05-01 01:22:10,067 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | TEXTS
+2019-05-01 01:22:14,360 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | MEASURES
+2019-05-01 01:22:14,384 INFO [twinkle_OlDzouI]                 Page.java:251  | 12 raw measures: [4 in system#1, 4 in system#2, 4 in system#3]
+2019-05-01 01:22:14,388 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | CHORDS
+2019-05-01 01:22:14,424 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | CURVES
+2019-05-01 01:22:15,648 INFO [twinkle_OlDzouI]         SlursBuilder.java:156  | Slurs: 0
+2019-05-01 01:22:15,671 INFO [twinkle_OlDzouI]      SegmentsBuilder.java:110  | Segments: 20
+2019-05-01 01:22:15,689 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | SYMBOLS
+2019-05-01 01:22:15,992 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | LINKS
+2019-05-01 01:22:16,019 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | RHYTHMS
+2019-05-01 01:22:16,091 INFO [twinkle_OlDzouI]       StepMonitoring.java:93   | PAGE
+2019-05-01 01:22:16,107 INFO [twinkle_OlDzouI]            SheetStub.java:974  | Stub#1 storing
+2019-05-01 01:22:16,122 INFO [twinkle_OlDzouI]                 Book.java:1660 | Stored /book.xml
+2019-05-01 01:22:16,294 INFO [twinkle_OlDzouI]              Picture.java:784  | Stored /sheet#1/BINARY.xml
+2019-05-01 01:22:16,922 INFO [twinkle_OlDzouI]                Sheet.java:1246 | Stored /sheet#1/sheet#1.xml
+2019-05-01 01:22:16,942 INFO [twinkle_OlDzouI]            SheetStub.java:979  | Sheet{twinkle_OlDzouI} disposed
+2019-05-01 01:22:17,623 INFO [twinkle_OlDzouI]            SheetStub.java:632  | Loaded /sheet#1/sheet#1.xml
+2019-05-01 01:22:17,623 INFO [twinkle_OlDzouI]                 Book.java:1451 | Scores built: 1
+2019-05-01 01:22:20,728 INFO [twinkle_OlDzouI]        ScoreExporter.java:88   | Score twinkle_OlDzouI exported to media\mxl\twinkle_OlDzouI\twinkle_OlDzouI.mxl
+2019-05-01 01:22:21,058 INFO [twinkle_OlDzouI]                 Book.java:1660 | Stored /book.xml
+2019-05-01 01:22:21,058 INFO [twinkle_OlDzouI]                 Book.java:1613 | Book stored as media\mxl\twinkle_OlDzouI\twinkle_OlDzouI.omr

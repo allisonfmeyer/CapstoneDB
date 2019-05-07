@@ -21,5 +21,5 @@ public class ProgramId {
     public static final String PROGRAM_VERSION = "5.1.0";
 
     /** Precise program build: {@value} */
-    public static final String PROGRAM_BUILD = "a06c7ae9c";
+    public static final String PROGRAM_BUILD = "ae68fddee";
 }

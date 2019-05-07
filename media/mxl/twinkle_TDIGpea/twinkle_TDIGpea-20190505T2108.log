@@ -1,0 +1,52 @@
+2019-05-05 21:08:51,115 INFO [twinkle_TDIGpea]                 Book.java:473  | 1 sheet in media\sheets\twinkle_TDIGpea.pdf
+2019-05-05 21:08:54,157 INFO []                 Book.java:1660 | Stored /book.xml
+2019-05-05 21:08:54,160 INFO []                 Book.java:1613 | Book stored as media\mxl\twinkle_TDIGpea\twinkle_TDIGpea.omr
+2019-05-05 21:08:54,209 INFO []                 Book.java:1327 | Book reaching PAGE on sheets:[#1]
+2019-05-05 21:08:54,273 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | LOAD
+2019-05-05 21:08:55,797 INFO [twinkle_TDIGpea]                 Book.java:1226 | Loaded image 1 2549x3299 from media\sheets\twinkle_TDIGpea.pdf
+2019-05-05 21:08:57,878 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | BINARY
+2019-05-05 21:08:59,521 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | SCALE
+2019-05-05 21:08:59,700 INFO [twinkle_TDIGpea]         ScaleBuilder.java:557  | Second combo peak too different (182,182,182), ignored
+2019-05-05 21:08:59,738 INFO [twinkle_TDIGpea]         ScaleBuilder.java:492  | Beam minHeight:5 maxHeight:17 quorum:689
+2019-05-05 21:08:59,750 INFO [twinkle_TDIGpea]         ScaleBuilder.java:235  | No beam key found, guessed value: 11
+2019-05-05 21:08:59,763 INFO [twinkle_TDIGpea]            ScaleStep.java:84   | Scale{line(1,1,2) interline(17,18,18) beam(11 extra)}
+2019-05-05 21:08:59,765 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | GRID
+2019-05-05 21:09:01,410 INFO [twinkle_TDIGpea]       LinesRetriever.java:447  | Global slope: 0.00000
+2019-05-05 21:09:01,653 INFO [twinkle_TDIGpea]    ClustersRetriever.java:235  | Retrieved line clusters: 3 of size: 5 with interline: interline(17,18,18)
+2019-05-05 21:09:02,232 INFO [twinkle_TDIGpea]            PeakGraph.java:177  | Systems: #1[1] #2[2] #3[3]
+2019-05-05 21:09:02,884 INFO [twinkle_TDIGpea]        SystemManager.java:731  | 1 part along 3 systems
+2019-05-05 21:09:02,919 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | HEADERS
+2019-05-05 21:09:04,086 INFO [twinkle_TDIGpea]      BasicClassifier.java:362  | Classifier loaded XML norms.
+2019-05-05 21:09:04,114 INFO [twinkle_TDIGpea]   AbstractClassifier.java:348  | Classifier data loaded from default uri file:///C:/Users/Ally/My%20Documents/Capstone/CapstoneDB/res/basic-classifier.zip
+2019-05-05 21:09:07,429 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | STEM_SEEDS
+2019-05-05 21:09:07,710 INFO [twinkle_TDIGpea]        StemSeedsStep.java:93   | stem(1 max:4)
+2019-05-05 21:09:08,068 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | BEAMS
+2019-05-05 21:09:15,435 INFO [twinkle_TDIGpea]       BlackHeadSizer.java:95   | Spots black-head retrieval diameter: 16.2
+2019-05-05 21:09:15,512 INFO [twinkle_TDIGpea]       BlackHeadSizer.java:243  | Core black head count: 16 blackHead(width:21.0~0.0 height:17.8~1.0)
+2019-05-05 21:09:15,525 INFO [twinkle_TDIGpea]       BlackHeadSizer.java:248  | MusicFont{name:MusicalSymbols pointSize:70}
+2019-05-05 21:09:15,810 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | LEDGERS
+2019-05-05 21:09:16,378 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | HEADS
+2019-05-05 21:09:18,925 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | STEMS
+2019-05-05 21:09:19,303 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | REDUCTION
+2019-05-05 21:09:19,531 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | CUE_BEAMS
+2019-05-05 21:09:19,556 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | TEXTS
+2019-05-05 21:09:25,569 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | MEASURES
+2019-05-05 21:09:25,753 INFO [twinkle_TDIGpea]                 Page.java:251  | 12 raw measures: [4 in system#1, 4 in system#2, 4 in system#3]
+2019-05-05 21:09:25,754 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | CHORDS
+2019-05-05 21:09:25,948 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | CURVES
+2019-05-05 21:09:27,609 INFO [twinkle_TDIGpea]         SlursBuilder.java:156  | Slurs: 0
+2019-05-05 21:09:27,714 INFO [twinkle_TDIGpea]      SegmentsBuilder.java:110  | Segments: 20
+2019-05-05 21:09:27,842 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | SYMBOLS
+2019-05-05 21:09:28,450 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | LINKS
+2019-05-05 21:09:28,570 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | RHYTHMS
+2019-05-05 21:09:29,088 INFO [twinkle_TDIGpea]       StepMonitoring.java:93   | PAGE
+2019-05-05 21:09:29,219 INFO [twinkle_TDIGpea]            SheetStub.java:974  | Stub#1 storing
+2019-05-05 21:09:29,236 INFO [twinkle_TDIGpea]                 Book.java:1660 | Stored /book.xml
+2019-05-05 21:09:29,415 INFO [twinkle_TDIGpea]              Picture.java:784  | Stored /sheet#1/BINARY.xml
+2019-05-05 21:09:31,005 INFO [twinkle_TDIGpea]                Sheet.java:1246 | Stored /sheet#1/sheet#1.xml
+2019-05-05 21:09:31,031 INFO [twinkle_TDIGpea]            SheetStub.java:979  | Sheet{twinkle_TDIGpea} disposed
+2019-05-05 21:09:31,644 INFO [twinkle_TDIGpea]            SheetStub.java:632  | Loaded /sheet#1/sheet#1.xml
+2019-05-05 21:09:31,660 INFO [twinkle_TDIGpea]                 Book.java:1451 | Scores built: 1
+2019-05-05 21:09:34,976 INFO [twinkle_TDIGpea]        ScoreExporter.java:88   | Score twinkle_TDIGpea exported to media\mxl\twinkle_TDIGpea\twinkle_TDIGpea.mxl
+2019-05-05 21:09:35,306 INFO [twinkle_TDIGpea]                 Book.java:1660 | Stored /book.xml
+2019-05-05 21:09:35,307 INFO [twinkle_TDIGpea]                 Book.java:1613 | Book stored as media\mxl\twinkle_TDIGpea\twinkle_TDIGpea.omr

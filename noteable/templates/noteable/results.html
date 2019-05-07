@@ -46,12 +46,7 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'account' %}">Your Account
-              <span class="sr-only">(current)</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}">Logout</a>
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
         </ul>
       </div>
@@ -70,6 +65,10 @@
       <h3>Percentage Correct: <a id="percent">{{ percentage }}%<a></h3>
       <div class="container" id="notation" align="center"></div>
       <style>
+          svg .abcjs-v1.abcjs-note {
+                fill: green;
+                stroke: green;
+            }
           {% for class in classes %}
             svg {{ class }} {
                 fill: red;

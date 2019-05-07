@@ -45,12 +45,7 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'account' %}">My Account
-              <span class="sr-only">(current)</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}">Logout</a>
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
         </ul>
       </div>
@@ -59,7 +54,7 @@
 
   <!-- Header - set the background image for the header in the line below -->
   <header>
-    <br><h1 class="text-center">User's Home Page</h1>
+    <br><h1 class="text-center">{{user.first_name}}'s Home Page</h1>
   </header>
 
   <!-- Content section -->
@@ -74,32 +69,30 @@
       </form>
       <br><br>
       <div class="row">
-        <div class="column" id="left">
+        <div class="leftSide">
           <h3>Library:</h3>
           <div id="music_library">
             <a href="{% url 'logged_home' chosen_song='twinkle' %}">Twinkle Twinkle Little Star</a>
             <br><a href="{% url 'logged_home' chosen_song='lightlyRow' %}">Lightly Row</a>
             <br><a href="{% url 'logged_home' chosen_song='songOfTheWind' %}">Song of the Wind</a>
-            {% if model %}
-            <br><a href="{% url 'logged_home' chosen_song="+{{model.title}}+" %}">{{model.title}}</a>  
-            {% endif %} 
+            {% for model in models %}
+            <br><a href="/noteable/logged_home/{{model.title}}">{{model.title}}</a>  
+            {% endfor %} 
           </div>
         </div>
-        <div class="column" id="right">
+        <div class="rightSide">
           <h3>Preview:</h3>
           <div id="music_preview">
             <div id="notation">
             </div>
           </div><br>
           <table>
-            <col width="300">
-            <col width="300">
             <tr>
               <td>
-                <button onclick="saveMusic()" type="button">Save Music</button>
+                <button class="button" onclick="location.href='{% url 'edit' %}'" type="button">Edit Music</button>
               </td>
               <td>
-                <button onclick="location.href='{% url 'play' %}'" type="button">Start Recording!</button>
+                <button class="button redButton" onclick="location.href='{% url 'play' %}'" type="button">Start Recording!</button>
               </td>
             </tr>
           </table>
